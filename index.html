@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Christmas Salary Calculator</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- New Khmer Fonts: Battambang & Dangrek -->
+    <!-- Khmer Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Dangrek&display=swap" rel="stylesheet">
     <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -34,6 +34,7 @@
                     animation: {
                         'float': 'float 3s ease-in-out infinite',
                         'spin-slow': 'spin 8s linear infinite',
+                        'bounce-slow': 'bounce 2s infinite',
                     },
                     keyframes: {
                         float: {
@@ -58,18 +59,14 @@
         .dark .glass-card {
             background: rgba(30, 41, 59, 0.9);
         }
-        
-        /* Font refinements */
         h1, h2, h3, .font-header {
             font-family: 'Dangrek', cursive;
             letter-spacing: 0.5px;
         }
-
-        /* Snowflake Animation */
         .snowflake {
             position: fixed;
             top: -10px;
-            color: white; /* Default white */
+            color: white;
             user-select: none;
             z-index: 9999;
             pointer-events: none;
@@ -77,16 +74,8 @@
             animation-timing-function: linear;
             text-shadow: 0 0 5px rgba(255,255,255,0.8);
         }
-        
-        .dark .snowflake {
-            color: #e2e8f0; /* Slightly dim in dark mode */
-        }
-
-        @keyframes fall {
-            to {
-                transform: translateY(105vh);
-            }
-        }
+        .dark .snowflake { color: #e2e8f0; }
+        @keyframes fall { to { transform: translateY(105vh); } }
     </style>
 </head>
 <body class="bg-blue-50 dark:bg-darkNight text-gray-800 dark:text-gray-100 min-h-screen transition-colors duration-500 relative">
@@ -103,13 +92,12 @@
                     <p class="text-[10px] text-yellow-100 -mt-0.5 opacity-90 font-medium font-sans">Merry Christmas Edition 🎄</p>
                 </div>
             </div>
-            
             <div class="flex items-center gap-3">
                 <button id="theme-toggle" class="p-2 rounded-full bg-white/20 hover:bg-white/30 text-white transition-all">
                     <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
                     <i data-lucide="sun" class="w-5 h-5 hidden dark:block text-yellow-300"></i>
                 </button>
-                <button onclick="toggleModal()" class="flex items-center gap-2 px-3 py-2 rounded-full bg-white text-santaRed dark:text-pineGreen font-bold shadow-lg hover:scale-105 transition active:scale-95 group">
+                <button onclick="toggleModal('ot-modal')" class="flex items-center gap-2 px-3 py-2 rounded-full bg-white text-santaRed dark:text-pineGreen font-bold shadow-lg hover:scale-105 transition active:scale-95 group">
                     <i data-lucide="list-todo" class="w-5 h-5"></i>
                     <span class="hidden md:block text-xs font-sans">តារាង OT</span>
                 </button>
@@ -117,19 +105,16 @@
         </div>
     </nav>
 
-    <main class="max-w-4xl mx-auto p-4 md:p-6 space-y-6 relative z-10 pb-20">
-
+    <main class="max-w-4xl mx-auto p-4 md:p-6 space-y-6 relative z-10 pb-32">
         <!-- SETUP SECTION -->
         <section class="glass-card p-6 rounded-3xl shadow-sm border-2 border-dashed border-red-200 dark:border-green-900 relative">
             <div class="absolute -top-3 -left-3 bg-white dark:bg-darkNight p-1 rounded-full border border-red-100 dark:border-green-900">
                 <i data-lucide="snowflake" class="w-8 h-8 text-blue-200 dark:text-blue-900 animate-spin-slow"></i>
             </div>
-
             <h2 class="text-xl font-bold mb-6 text-santaRed dark:text-green-400 flex items-center gap-2">
                 <i data-lucide="settings-2" class="w-6 h-6"></i>
                 ការកំណត់ប្រាក់ខែគោល
             </h2>
-            
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div class="relative group">
                     <label class="block text-xs font-bold uppercase text-pineGreen dark:text-green-200 mb-1.5 font-sans">ប្រាក់ខែគោល ($)</label>
@@ -144,7 +129,6 @@
                     <input type="number" id="workHours" value="8" class="w-full p-4 bg-green-50 dark:bg-slate-800/80 border-2 border-green-100 dark:border-green-800 rounded-2xl focus:ring-4 focus:ring-green-200 focus:border-pineGreen outline-none text-lg shadow-inner font-sans" oninput="calculateAll()">
                 </div>
             </div>
-
             <div class="grid grid-cols-3 gap-4 font-sans">
                 <div class="bg-gray-100 dark:bg-slate-800 rounded-full py-2 px-4 text-center border-b-4 border-gray-300 dark:border-gray-700">
                     <p class="text-[10px] text-gray-500 font-bold">1 ម៉ោង</p>
@@ -168,30 +152,23 @@
                 សរុបម៉ោង OT
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- 150% Input -->
                 <div class="relative">
                     <label class="block text-sm font-medium text-gray-500 mb-2 font-sans">OT 150% (ម៉ោង)</label>
                     <div class="relative group">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <span class="text-blue-500 font-bold text-xs">1.5x</span>
                         </div>
-                        <input type="number" id="manualHours150" placeholder="0" 
-                            class="w-full pl-10 p-4 bg-white dark:bg-slate-800 border-2 border-blue-100 dark:border-gray-600 rounded-2xl text-xl font-bold focus:ring-4 focus:ring-blue-100 focus:border-blue-400 outline-none text-blue-600 dark:text-blue-300 transition font-sans"
-                            oninput="calculateAll(true)">
+                        <input type="number" id="manualHours150" placeholder="0" class="w-full pl-10 p-4 bg-white dark:bg-slate-800 border-2 border-blue-100 dark:border-gray-600 rounded-2xl text-xl font-bold focus:ring-4 focus:ring-blue-100 focus:border-blue-400 outline-none text-blue-600 dark:text-blue-300 transition font-sans" oninput="calculateAll(true)">
                         <i data-lucide="snowflake" class="absolute right-3 top-4 w-5 h-5 text-blue-200 opacity-50"></i>
                     </div>
                 </div>
-
-                <!-- 200% Input -->
                 <div class="relative">
                     <label class="block text-sm font-medium text-gray-500 mb-2 font-sans">OT 200% (ម៉ោង)</label>
                     <div class="relative group">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <span class="text-purple-500 font-bold text-xs">2.0x</span>
                         </div>
-                        <input type="number" id="manualHours200" placeholder="0" 
-                            class="w-full pl-10 p-4 bg-white dark:bg-slate-800 border-2 border-purple-100 dark:border-gray-600 rounded-2xl text-xl font-bold focus:ring-4 focus:ring-purple-100 focus:border-purple-400 outline-none text-purple-600 dark:text-purple-300 transition font-sans"
-                            oninput="calculateAll(true)">
+                        <input type="number" id="manualHours200" placeholder="0" class="w-full pl-10 p-4 bg-white dark:bg-slate-800 border-2 border-purple-100 dark:border-gray-600 rounded-2xl text-xl font-bold focus:ring-4 focus:ring-purple-100 focus:border-purple-400 outline-none text-purple-600 dark:text-purple-300 transition font-sans" oninput="calculateAll(true)">
                         <i data-lucide="star" class="absolute right-3 top-4 w-5 h-5 text-purple-200 opacity-50"></i>
                     </div>
                 </div>
@@ -200,8 +177,7 @@
 
         <!-- INCOME & EXPENSE -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            
-            <!-- INCOME (Green Theme) -->
+            <!-- INCOME -->
             <section class="glass-card p-6 rounded-3xl shadow-sm border-t-4 border-pineGreen h-full">
                 <h2 class="text-xl font-bold mb-6 text-pineGreen dark:text-green-400 flex items-center gap-3 pb-4 border-b border-green-50 dark:border-green-900/30">
                     <div class="bg-green-100 dark:bg-green-900 p-2 rounded-lg">
@@ -218,7 +194,6 @@
                         <span class="text-blue-700 dark:text-blue-300 text-sm font-medium">ប្រាក់ OT សរុប</span>
                         <span id="displayTotalOT" class="font-bold text-blue-700 dark:text-blue-300">$0.00</span>
                     </div>
-
                     <div class="space-y-3 pt-2">
                         <div class="flex items-center justify-between">
                             <label class="text-sm text-gray-600 dark:text-gray-400">ថ្លៃបាយ</label>
@@ -230,14 +205,13 @@
                         </div>
                     </div>
                 </div>
-                
                 <div class="mt-8 pt-4 border-t-2 border-dashed border-green-100 dark:border-green-900 flex justify-between items-baseline font-sans">
                     <span class="font-medium text-gray-500 uppercase text-xs tracking-wider">សរុបចំណូល</span>
                     <span id="totalIncome" class="text-2xl font-bold text-pineGreen dark:text-green-400">$0.00</span>
                 </div>
             </section>
 
-            <!-- EXPENSE (Red Theme) -->
+            <!-- EXPENSE -->
             <section class="glass-card p-6 rounded-3xl shadow-sm border-t-4 border-santaRed h-full">
                 <h2 class="text-xl font-bold mb-6 text-santaRed dark:text-red-400 flex items-center gap-3 pb-4 border-b border-red-50 dark:border-red-900/30">
                     <div class="bg-red-100 dark:bg-red-900 p-2 rounded-lg">
@@ -281,7 +255,6 @@
                         <input type="number" class="expense-input w-32 p-2 bg-white dark:bg-slate-900 border border-red-100 dark:border-gray-700 rounded-lg text-right focus:border-santaRed outline-none transition" placeholder="0" oninput="calculateAll(true)">
                     </div>
                 </div>
-                
                 <div class="mt-8 pt-4 border-t-2 border-dashed border-red-100 dark:border-red-900 flex justify-between items-baseline font-sans">
                     <span class="font-medium text-gray-500 uppercase text-xs tracking-wider">សរុបចំណាយ</span>
                     <span id="totalExpense" class="text-2xl font-bold text-santaRed dark:text-red-400">$0.00</span>
@@ -289,22 +262,25 @@
             </section>
         </div>
 
-        <!-- FOOTER: Created By -->
-        <footer class="text-center py-6 mt-6">
-             <div class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white/50 dark:bg-darkNight/50 backdrop-blur-sm rounded-full border border-gray-200 dark:border-gray-700 shadow-sm">
-                 <p class="text-gray-600 dark:text-gray-400 text-sm font-sans font-bold">
-                     បង្កើតដោយ <span class="text-santaRed dark:text-green-400 font-header text-base">ហ៊ុន សំណាង</span> ❤️
+        <!-- FOOTER: Created By & Donate -->
+        <footer class="text-center py-6 mt-6 flex flex-col md:flex-row gap-4 justify-center items-center">
+             <div class="inline-flex items-center justify-center gap-2 px-6 py-2 bg-white/50 dark:bg-darkNight/50 backdrop-blur-sm rounded-full border border-gray-200 dark:border-gray-700 shadow-sm transition hover:scale-105 hover:border-santaRed cursor-default">
+                 <p class="text-gray-600 dark:text-gray-400 text-sm font-sans font-bold flex items-center gap-2">
+                     បង្កើតដោយ <span class="text-santaRed dark:text-green-400 font-header text-lg">ហ៊ុន សំណាង</span> ❤️
                  </p>
              </div>
+             
+             <!-- Donate Button -->
+             <button onclick="toggleModal('donate-modal')" class="inline-flex items-center justify-center gap-2 px-6 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition active:scale-95 animate-bounce-slow">
+                 <span class="font-sans font-bold text-sm">Donate Admin ☕</span>
+             </button>
         </footer>
 
         <!-- GRAND TOTAL FLOATING BAR -->
         <div class="sticky bottom-4 z-40">
-            <section class="relative bg-gradient-to-r from-santaRed to-red-700 dark:from-pineGreen dark:to-green-900 text-white p-5 rounded-3xl shadow-2xl flex items-center justify-between overflow-hidden">
-                <!-- Ribbon Overlay -->
+            <section class="relative bg-gradient-to-r from-santaRed to-red-700 dark:from-pineGreen dark:to-green-900 text-white p-5 rounded-3xl shadow-2xl flex items-center justify-between overflow-hidden border-2 border-white/20">
                 <div class="absolute top-0 right-10 w-12 h-full bg-gold/30 skew-x-12"></div>
                 <div class="absolute top-0 right-14 w-2 h-full bg-gold/50 skew-x-12"></div>
-                
                 <div class="relative z-10 flex items-center gap-3">
                     <div class="bg-white/20 p-2 rounded-full hidden sm:block">
                         <i data-lucide="gift" class="w-6 h-6 text-white"></i>
@@ -317,28 +293,23 @@
                 <h1 id="grandTotal" class="relative z-10 text-3xl md:text-5xl font-bold tracking-tight text-white font-mono drop-shadow-md">$0.00</h1>
             </section>
         </div>
-
     </main>
 
     <!-- OT MODAL (POPUP) -->
-    <div id="ot-modal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="fixed inset-0 bg-darkNight/80 backdrop-blur-sm transition-opacity" onclick="toggleModal()"></div>
-
+    <div id="ot-modal" class="fixed inset-0 z-50 hidden modal-overlay" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-darkNight/80 backdrop-blur-sm transition-opacity" onclick="toggleModal('ot-modal')"></div>
         <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
             <div class="relative transform overflow-hidden rounded-3xl bg-white dark:bg-darkCard text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-3xl modal-enter border-4 border-santaRed dark:border-green-800">
-                
                 <div class="absolute top-0 left-0 w-full h-2 bg-candy-cane"></div>
-
                 <div class="bg-white dark:bg-darkCard px-4 pb-4 pt-6 sm:p-6 sm:pb-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
                     <h3 class="text-xl font-bold leading-6 text-santaRed dark:text-white flex items-center gap-2 font-header">
                         <i data-lucide="scroll" class="w-6 h-6 text-gold"></i>
                         តារាងកត់ម៉ោង (Santa's List)
                     </h3>
-                    <button onclick="toggleModal()" class="text-gray-400 hover:text-red-500 transition bg-red-50 dark:bg-slate-800 p-2 rounded-full">
+                    <button onclick="toggleModal('ot-modal')" class="text-gray-400 hover:text-red-500 transition bg-red-50 dark:bg-slate-800 p-2 rounded-full">
                         <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
                 </div>
-
                 <div class="px-4 py-4 sm:p-6 max-h-[60vh] overflow-y-auto">
                     <div class="overflow-x-auto rounded-xl border-2 border-gray-100 dark:border-slate-700">
                         <table class="w-full text-sm text-left font-sans">
@@ -356,14 +327,60 @@
                             </tbody>
                         </table>
                     </div>
-                    
                     <button onclick="addOTRow()" class="mt-4 w-full py-3 bg-pineGreen hover:bg-green-800 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 border-b-4 border-green-900 font-sans">
                         <i data-lucide="plus-circle" class="w-5 h-5"></i> បន្ថែមជួរថ្មី
                     </button>
                 </div>
-
                 <div class="bg-gray-50 dark:bg-slate-800/50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 border-t border-gray-100 dark:border-gray-700">
-                    <button type="button" class="mt-3 inline-flex w-full justify-center rounded-xl bg-white dark:bg-slate-700 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-slate-600 sm:mt-0 sm:w-auto font-sans" onclick="toggleModal()">បិទ</button>
+                    <button type="button" class="mt-3 inline-flex w-full justify-center rounded-xl bg-white dark:bg-slate-700 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-slate-600 sm:mt-0 sm:w-auto font-sans" onclick="toggleModal('ot-modal')">បិទ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DONATE MODAL WITH QR PLACEHOLDER -->
+    <div id="donate-modal" class="fixed inset-0 z-50 hidden modal-overlay" aria-labelledby="donate-modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-darkNight/80 backdrop-blur-sm transition-opacity" onclick="toggleModal('donate-modal')"></div>
+
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-3xl bg-white dark:bg-darkCard text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md modal-enter border-4 border-gold">
+                
+                <!-- Decoration -->
+                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-yellow-400 to-orange-500"></div>
+
+                <!-- Header -->
+                <div class="bg-white dark:bg-darkCard px-4 pb-4 pt-6 text-center">
+                    <div class="mx-auto flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/30 mb-4 animate-bounce">
+                        <i data-lucide="coffee" class="w-8 h-8 text-orange-500"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold leading-6 text-gray-900 dark:text-white font-header mb-2" id="donate-modal-title">
+                        ឧបត្ថម្ភគាំទ្រ Admin ☕
+                    </h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 font-sans">
+                        Scan. Pay. Done.
+                    </p>
+                </div>
+
+                <!-- Body (QR Code Area) -->
+                <div class="px-6 py-4 text-center">
+                    <div class="bg-gray-100 dark:bg-slate-800 p-4 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-600 flex flex-col items-center justify-center gap-2">
+                        
+                        <!-- IMPORTANT: Replace the src below with your actual QR code image path or URL -->
+                        <div class="w-64 h-64 bg-white p-2 rounded-lg shadow-sm">
+                            <img src="my_qr.jpg" alt="ABA QR Code" class="w-full h-full object-contain">
+                        </div>
+                        
+                        <div class="mt-2 text-center w-full">
+                            <p class="text-xs text-gray-500 font-bold uppercase tracking-widest mb-1">ABA Bank</p>
+                            <p class="text-lg font-bold text-gray-800 dark:text-gray-200">HUN SAMNANG</p>
+                            <!-- You can add account number here if you want -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="bg-gray-50 dark:bg-slate-800/50 px-4 py-3 sm:px-6 flex justify-center">
+                    <button type="button" class="inline-flex w-full justify-center rounded-xl bg-gradient-to-r from-santaRed to-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:opacity-90 sm:w-auto font-sans" onclick="toggleModal('donate-modal')">បិទ</button>
                 </div>
             </div>
         </div>
@@ -372,59 +389,41 @@
     <script>
         lucide.createIcons();
 
-        // --- Snowfall Animation ---
         function createSnowflake() {
             const snowflake = document.createElement('div');
             snowflake.classList.add('snowflake');
-            snowflake.innerText = '❄'; // Snowflake character
-            
-            // Random positioning and sizing
+            snowflake.innerText = '❄';
             snowflake.style.left = Math.random() * 100 + 'vw';
             snowflake.style.fontSize = Math.random() * 10 + 10 + 'px';
             snowflake.style.opacity = Math.random();
-            
-            // Random animation duration
-            const duration = Math.random() * 3 + 5; // Between 5 and 8 seconds
+            const duration = Math.random() * 3 + 5; 
             snowflake.style.animationDuration = duration + 's';
-            
             document.body.appendChild(snowflake);
-
-            // Remove snowflake after it falls
-            setTimeout(() => {
-                snowflake.remove();
-            }, duration * 1000);
+            setTimeout(() => { snowflake.remove(); }, duration * 1000);
         }
-
-        // Create snowflakes every 300ms
         setInterval(createSnowflake, 300);
 
-        // --- Dark Mode ---
         const themeToggleBtn = document.getElementById('theme-toggle');
         const htmlElement = document.documentElement;
-        
         if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             htmlElement.classList.add('dark');
         } else {
             htmlElement.classList.remove('dark');
         }
-
         themeToggleBtn.addEventListener('click', () => {
             htmlElement.classList.toggle('dark');
             localStorage.theme = htmlElement.classList.contains('dark') ? 'dark' : 'light';
         });
 
-        // --- Modal Logic ---
-        function toggleModal() {
-            const modal = document.getElementById('ot-modal');
-            modal.classList.toggle('hidden');
+        function toggleModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.classList.toggle('hidden');
         }
 
-        // --- Calculation Logic ---
         function calculateAll(isManualInput = false) {
             const baseSalary = parseFloat(document.getElementById('baseSalary').value) || 0;
             const workDays = parseFloat(document.getElementById('workDays').value) || 26;
             const workHours = parseFloat(document.getElementById('workHours').value) || 8;
-
             const hourlyRate = (baseSalary / workDays) / workHours;
             const rate150 = hourlyRate * 1.5;
             const rate200 = hourlyRate * 2.0;
@@ -438,16 +437,13 @@
             let tableHours200 = 0;
             const rows = document.querySelectorAll('#otTableBody tr');
             const hasTableRows = rows.length > 0;
-
             rows.forEach(row => {
                 const start = row.querySelector('.start-time').value;
                 const end = row.querySelector('.end-time').value;
-                
                 if (start && end) {
                     const hours = calculateHoursBreakdown(start, end);
                     tableHours150 += hours.h150;
                     tableHours200 += hours.h200;
-                    
                     row.querySelector('.res-150').innerText = hours.h150.toFixed(1);
                     row.querySelector('.res-200').innerText = hours.h200.toFixed(1);
                 }
@@ -455,19 +451,15 @@
 
             const input150 = document.getElementById('manualHours150');
             const input200 = document.getElementById('manualHours200');
-
             if (hasTableRows && !isManualInput) {
                 input150.value = tableHours150.toFixed(1);
                 input200.value = tableHours200.toFixed(1);
             }
-
             const finalHours150 = parseFloat(input150.value) || 0;
             const finalHours200 = parseFloat(input200.value) || 0;
-
             const money150 = finalHours150 * rate150;
             const money200 = finalHours200 * rate200;
             const totalOtMoney = money150 + money200;
-
             document.getElementById('displayTotalOT').innerText = '$' + totalOtMoney.toFixed(2);
 
             let otherIncome = 0;
@@ -493,57 +485,33 @@
         function calculateHoursBreakdown(startStr, endStr) {
             let start = timeToDecimal(startStr);
             let end = timeToDecimal(endStr);
-            
             if (end < start) end += 24; 
-
             const cutoff = 22.0; 
             const startLimit = 18.0; 
-
             const effectiveStart = Math.max(start, startLimit); 
-
             let h150 = 0;
             let h200 = 0;
-
             if (effectiveStart < cutoff) {
-                if (end <= cutoff) {
-                    h150 = end - effectiveStart;
-                } else {
-                    h150 = cutoff - effectiveStart;
-                }
+                if (end <= cutoff) { h150 = end - effectiveStart; } else { h150 = cutoff - effectiveStart; }
             }
-
             if (end > cutoff) {
-                if (effectiveStart >= cutoff) {
-                    h200 = end - effectiveStart;
-                } else {
-                    h200 = end - cutoff;
-                }
+                if (effectiveStart >= cutoff) { h200 = end - effectiveStart; } else { h200 = end - cutoff; }
             }
-
-            return { 
-                h150: Math.max(0, h150), 
-                h200: Math.max(0, h200) 
-            };
+            return { h150: Math.max(0, h150), h200: Math.max(0, h200) };
         }
 
         function addOTRow() {
             const tbody = document.getElementById('otTableBody');
             const row = document.createElement('tr');
             row.className = "border-b border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors";
-            
             const today = new Date().toISOString().split('T')[0];
-
             row.innerHTML = `
                 <td class="p-3"><input type="date" value="${today}" class="bg-transparent text-gray-600 dark:text-gray-400 text-xs outline-none font-medium w-full font-sans"></td>
                 <td class="p-3"><input type="time" class="start-time p-1.5 bg-white dark:bg-slate-900 border border-gray-200 dark:border-gray-600 rounded-lg text-xs w-full focus:ring-1 focus:ring-blue-500 outline-none" oninput="calculateAll()"></td>
                 <td class="p-3"><input type="time" class="end-time p-1.5 bg-white dark:bg-slate-900 border border-gray-200 dark:border-gray-600 rounded-lg text-xs w-full focus:ring-1 focus:ring-blue-500 outline-none" oninput="calculateAll()"></td>
                 <td class="p-3 text-right font-mono res-150 text-blue-600 font-bold">0.0</td>
                 <td class="p-3 text-right font-mono res-200 text-purple-600 font-bold">0.0</td>
-                <td class="p-3 text-center">
-                    <button onclick="this.closest('tr').remove(); calculateAll()" class="text-gray-400 hover:text-red-500 transition-colors p-1 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20">
-                        <i data-lucide="x" class="w-4 h-4"></i>
-                    </button>
-                </td>
+                <td class="p-3 text-center"><button onclick="this.closest('tr').remove(); calculateAll()" class="text-gray-400 hover:text-red-500 transition-colors p-1 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20"><i data-lucide="x" class="w-4 h-4"></i></button></td>
             `;
             tbody.appendChild(row);
             lucide.createIcons();
@@ -551,7 +519,6 @@
 
         addOTRow();
         calculateAll();
-
     </script>
 </body>
 </html>
