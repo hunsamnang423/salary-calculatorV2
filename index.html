@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Christmas Salary Calculator</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Khmer Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Dangrek&display=swap" rel="stylesheet">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Dangrek&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- HTML2Canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <script>
         tailwind.config = {
@@ -16,8 +18,8 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['"Battambang"', 'sans-serif'],
-                        header: ['"Dangrek"', 'cursive'],
+                        sans: ['"Battambang"', '"Poppins"', 'sans-serif'],
+                        header: ['"Dangrek"', '"Poppins"', 'cursive'],
                     },
                     colors: {
                         santaRed: '#D42426',
@@ -27,6 +29,7 @@
                         gold: '#F8B229',
                         darkNight: '#0f172a',
                         cozyDark: '#1e293b',
+                        neonGreen: '#4ade80',
                     },
                     backgroundImage: {
                         'candy-cane': "repeating-linear-gradient(45deg, #D42426, #D42426 10px, #ffffff 10px, #ffffff 20px)",
@@ -52,6 +55,9 @@
             background-color: #f1f5f9;
             overflow-x: hidden;
         }
+        body.lang-en, body.lang-vi {
+            font-family: 'Poppins', sans-serif;
+        }
         .glass-card {
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px);
@@ -63,6 +69,12 @@
             font-family: 'Dangrek', cursive;
             letter-spacing: 0.5px;
         }
+        body.lang-en h1, body.lang-en h2, body.lang-en h3, body.lang-en .font-header,
+        body.lang-vi h1, body.lang-vi h2, body.lang-vi h3, body.lang-vi .font-header {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+        }
+
         .snowflake {
             position: fixed;
             top: -10px;
@@ -76,6 +88,48 @@
         }
         .dark .snowflake { color: #e2e8f0; }
         @keyframes fall { to { transform: translateY(105vh); } }
+        
+        /* Animations */
+        #grandTotalBar, #expenses-content, #ot-list-content {
+            transition: all 0.3s ease-in-out;
+            overflow: hidden;
+        }
+        .hidden-bar {
+            transform: translateY(150%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .hidden-content {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            margin-top: 0 !important;
+            pointer-events: none;
+        }
+        .visible-content {
+            max-height: 2000px;
+            opacity: 1;
+        }
+        
+        /* Receipt Style */
+        .receipt-zigzag {
+            background: linear-gradient(-45deg, transparent 16px, #f8fafc 0), linear-gradient(45deg, transparent 16px, #f8fafc 0);
+            background-repeat: repeat-x;
+            background-position: left bottom;
+            background-size: 22px 32px;
+            content: "";
+            display: block;
+            width: 100%;
+            height: 32px;
+            position: relative;
+            top: 0px;
+            left: 0px;
+        }
+        .dark .receipt-zigzag {
+            background: linear-gradient(-45deg, transparent 16px, #1e293b 0), linear-gradient(45deg, transparent 16px, #1e293b 0);
+            background-repeat: repeat-x;
+            background-position: left bottom;
+            background-size: 22px 32px;
+        }
     </style>
 </head>
 <body class="bg-blue-50 dark:bg-darkNight text-gray-800 dark:text-gray-100 min-h-screen transition-colors duration-500 relative">
@@ -88,50 +142,61 @@
                     <i data-lucide="gift" class="w-6 h-6 text-santaRed"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl md:text-2xl text-white pt-1 drop-shadow-md tracking-wide">គណនាប្រាក់ខែ</h1>
+                    <h1 class="text-xl md:text-2xl text-white pt-1 drop-shadow-md tracking-wide" data-i18n="appTitle">គណនាប្រាក់ខែ</h1>
                     <p class="text-[10px] text-yellow-100 -mt-0.5 opacity-90 font-medium font-sans">Merry Christmas Edition 🎄</p>
                 </div>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
+                <!-- Language -->
+                <button onclick="toggleLanguage()" class="min-w-[35px] px-2 py-1 rounded-lg bg-white/20 hover:bg-white/30 text-white text-xs font-bold transition-all border border-white/30">
+                    <span id="lang-label">KH</span>
+                </button>
+
+                <!-- DOWNLOAD BUTTON -->
+                <button onclick="openDownloadModal()" class="p-2 rounded-full bg-white/20 hover:bg-white/30 text-white transition-all active:scale-95" title="Download Report">
+                    <i data-lucide="download" class="w-5 h-5"></i>
+                </button>
+                
                 <button id="theme-toggle" class="p-2 rounded-full bg-white/20 hover:bg-white/30 text-white transition-all">
                     <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
                     <i data-lucide="sun" class="w-5 h-5 hidden dark:block text-yellow-300"></i>
                 </button>
+                
                 <button onclick="toggleModal('ot-modal')" class="flex items-center gap-2 px-3 py-2 rounded-full bg-white text-santaRed dark:text-pineGreen font-bold shadow-lg hover:scale-105 transition active:scale-95 group">
                     <i data-lucide="list-todo" class="w-5 h-5"></i>
-                    <span class="hidden md:block text-xs font-sans">តារាង OT</span>
+                    <span class="hidden md:block text-xs font-sans" data-i18n="otTableBtn">តារាង OT</span>
                 </button>
             </div>
         </div>
     </nav>
 
-    <main class="max-w-4xl mx-auto p-4 md:p-6 space-y-6 relative z-10 pb-32">
+    <main class="max-w-4xl mx-auto p-4 md:p-6 space-y-6 relative z-10 pb-40">
         <!-- SETUP SECTION -->
         <section class="glass-card p-6 rounded-3xl shadow-sm border-2 border-dashed border-red-200 dark:border-green-900 relative">
             <div class="absolute -top-3 -left-3 bg-white dark:bg-darkNight p-1 rounded-full border border-red-100 dark:border-green-900">
                 <i data-lucide="snowflake" class="w-8 h-8 text-blue-200 dark:text-blue-900 animate-spin-slow"></i>
             </div>
-            <h2 class="text-xl font-bold mb-6 text-santaRed dark:text-green-400 flex items-center gap-2">
+            <h2 class="text-xl font-bold mb-6 text-santaRed dark:text-green-400 flex items-center gap-2 font-header">
                 <i data-lucide="settings-2" class="w-6 h-6"></i>
-                ការកំណត់ប្រាក់ខែគោល
+                <span data-i18n="settingsTitle">ការកំណត់ប្រាក់ខែគោល</span>
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div class="relative group">
-                    <label class="block text-xs font-bold uppercase text-pineGreen dark:text-green-200 mb-1.5 font-sans">ប្រាក់ខែគោល ($)</label>
+                    <label class="block text-xs font-bold uppercase text-pineGreen dark:text-green-200 mb-1.5 font-sans" data-i18n="baseSalary">ប្រាក់ខែគោល ($)</label>
                     <input type="number" id="baseSalary" value="500" class="w-full p-4 bg-red-50 dark:bg-slate-800/80 border-2 border-red-100 dark:border-green-800 rounded-2xl focus:ring-4 focus:ring-red-200 focus:border-santaRed outline-none font-bold text-xl text-santaRed dark:text-red-300 transition-all shadow-inner font-sans" oninput="calculateAll()">
                 </div>
                 <div class="relative group">
-                    <label class="block text-xs font-bold uppercase text-pineGreen dark:text-green-200 mb-1.5 font-sans">ថ្ងៃធ្វើការ/ខែ</label>
+                    <label class="block text-xs font-bold uppercase text-pineGreen dark:text-green-200 mb-1.5 font-sans" data-i18n="workDays">ថ្ងៃធ្វើការ/ខែ</label>
                     <input type="number" id="workDays" value="26" class="w-full p-4 bg-green-50 dark:bg-slate-800/80 border-2 border-green-100 dark:border-green-800 rounded-2xl focus:ring-4 focus:ring-green-200 focus:border-pineGreen outline-none text-lg shadow-inner font-sans" oninput="calculateAll()">
                 </div>
                 <div class="relative group">
-                    <label class="block text-xs font-bold uppercase text-pineGreen dark:text-green-200 mb-1.5 font-sans">ម៉ោងធ្វើការ/ថ្ងៃ</label>
+                    <label class="block text-xs font-bold uppercase text-pineGreen dark:text-green-200 mb-1.5 font-sans" data-i18n="workHours">ម៉ោងធ្វើការ/ថ្ងៃ</label>
                     <input type="number" id="workHours" value="8" class="w-full p-4 bg-green-50 dark:bg-slate-800/80 border-2 border-green-100 dark:border-green-800 rounded-2xl focus:ring-4 focus:ring-green-200 focus:border-pineGreen outline-none text-lg shadow-inner font-sans" oninput="calculateAll()">
                 </div>
             </div>
             <div class="grid grid-cols-3 gap-4 font-sans">
                 <div class="bg-gray-100 dark:bg-slate-800 rounded-full py-2 px-4 text-center border-b-4 border-gray-300 dark:border-gray-700">
-                    <p class="text-[10px] text-gray-500 font-bold">1 ម៉ោង</p>
+                    <p class="text-[10px] text-gray-500 font-bold" data-i18n="rate1h">1 ម៉ោង</p>
                     <p id="rate100" class="text-base font-bold text-gray-700 dark:text-gray-300">0.00</p>
                 </div>
                 <div class="bg-blue-100 dark:bg-blue-900/30 rounded-full py-2 px-4 text-center border-b-4 border-blue-300 dark:border-blue-800">
@@ -147,13 +212,13 @@
 
         <!-- MANUAL OT INPUTS -->
         <section class="glass-card p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
-            <h2 class="text-xl font-bold mb-4 text-gray-700 dark:text-gray-200 flex items-center gap-2">
+            <h2 class="text-xl font-bold mb-4 text-gray-700 dark:text-gray-200 flex items-center gap-2 font-header">
                 <span class="w-3 h-3 bg-gold rounded-full animate-pulse"></span>
-                សរុបម៉ោង OT
+                <span data-i18n="totalOtTitle">សរុបម៉ោង OT</span>
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="relative">
-                    <label class="block text-sm font-medium text-gray-500 mb-2 font-sans">OT 150% (ម៉ោង)</label>
+                    <label class="block text-sm font-medium text-gray-500 mb-2 font-sans" data-i18n="ot150">OT 150% (ម៉ោង)</label>
                     <div class="relative group">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <span class="text-blue-500 font-bold text-xs">1.5x</span>
@@ -163,7 +228,7 @@
                     </div>
                 </div>
                 <div class="relative">
-                    <label class="block text-sm font-medium text-gray-500 mb-2 font-sans">OT 200% (ម៉ោង)</label>
+                    <label class="block text-sm font-medium text-gray-500 mb-2 font-sans" data-i18n="ot200">OT 200% (ម៉ោង)</label>
                     <div class="relative group">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <span class="text-purple-500 font-bold text-xs">2.0x</span>
@@ -179,105 +244,102 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- INCOME -->
             <section class="glass-card p-6 rounded-3xl shadow-sm border-t-4 border-pineGreen h-full">
-                <h2 class="text-xl font-bold mb-6 text-pineGreen dark:text-green-400 flex items-center gap-3 pb-4 border-b border-green-50 dark:border-green-900/30">
+                <h2 class="text-xl font-bold mb-6 text-pineGreen dark:text-green-400 flex items-center gap-3 pb-4 border-b border-green-50 dark:border-green-900/30 font-header">
                     <div class="bg-green-100 dark:bg-green-900 p-2 rounded-lg">
-                        <i data-lucide="trees" class="w-5 h-5 text-pineGreen dark:text-green-300"></i>
+                        <i data-lucide="banknote" class="w-5 h-5 text-pineGreen dark:text-green-300"></i>
                     </div>
-                    ចំណូល (Income)
+                    <span data-i18n="incomeTitle">ចំណូល (Income)</span>
                 </h2>
                 <div class="space-y-4 font-sans">
                     <div class="flex justify-between items-center py-2 px-3 bg-green-50 dark:bg-green-900/10 rounded-xl">
-                        <span class="text-gray-600 dark:text-gray-300 text-sm font-medium">ប្រាក់ខែគោល</span>
+                        <span class="text-gray-600 dark:text-gray-300 text-sm font-medium" data-i18n="baseSalary">ប្រាក់ខែគោល</span>
                         <span id="displayBaseSalary" class="font-bold text-gray-800 dark:text-white">$0.00</span>
                     </div>
                     <div class="flex justify-between items-center py-2 px-3 bg-blue-50 dark:bg-blue-900/10 rounded-xl">
-                        <span class="text-blue-700 dark:text-blue-300 text-sm font-medium">ប្រាក់ OT សរុប</span>
+                        <span class="text-blue-700 dark:text-blue-300 text-sm font-medium" data-i18n="totalOtMoney">ប្រាក់ OT សរុប</span>
                         <span id="displayTotalOT" class="font-bold text-blue-700 dark:text-blue-300">$0.00</span>
                     </div>
                     <div class="space-y-3 pt-2">
                         <div class="flex items-center justify-between">
-                            <label class="text-sm text-gray-600 dark:text-gray-400">ថ្លៃបាយ</label>
+                            <label class="text-sm text-gray-600 dark:text-gray-400" data-i18n="foodAllowance">ថ្លៃបាយ</label>
                             <input type="number" class="income-input w-32 p-2 bg-white dark:bg-slate-900 border border-green-100 dark:border-gray-700 rounded-lg text-right focus:border-pineGreen outline-none transition" placeholder="0" oninput="calculateAll(true)">
                         </div>
                         <div class="flex items-center justify-between">
-                            <label class="text-sm text-gray-600 dark:text-gray-400">លើកទឹកចិត្ត (Bonus)</label>
+                            <label class="text-sm text-gray-600 dark:text-gray-400" data-i18n="bonus">លើកទឹកចិត្ត (Bonus)</label>
                             <input type="number" class="income-input w-32 p-2 bg-white dark:bg-slate-900 border border-green-100 dark:border-gray-700 rounded-lg text-right focus:border-pineGreen outline-none transition" placeholder="0" oninput="calculateAll(true)">
                         </div>
                     </div>
                 </div>
                 <div class="mt-8 pt-4 border-t-2 border-dashed border-green-100 dark:border-green-900 flex justify-between items-baseline font-sans">
-                    <span class="font-medium text-gray-500 uppercase text-xs tracking-wider">សរុបចំណូល</span>
+                    <span class="font-medium text-gray-500 uppercase text-xs tracking-wider" data-i18n="totalIncome">សរុបចំណូល</span>
                     <span id="totalIncome" class="text-2xl font-bold text-pineGreen dark:text-green-400">$0.00</span>
                 </div>
             </section>
 
-            <!-- EXPENSE -->
-            <section class="glass-card p-6 rounded-3xl shadow-sm border-t-4 border-santaRed h-full">
-                <h2 class="text-xl font-bold mb-6 text-santaRed dark:text-red-400 flex items-center gap-3 pb-4 border-b border-red-50 dark:border-red-900/30">
-                    <div class="bg-red-100 dark:bg-red-900 p-2 rounded-lg">
-                        <i data-lucide="candy-cane" class="w-5 h-5 text-santaRed dark:text-red-300"></i>
-                    </div>
-                    ចំណាយ (Expenses)
-                </h2>
-                <div class="space-y-3 font-sans">
-                    <div class="flex items-center justify-between">
-                        <label class="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                            <i data-lucide="fuel" class="w-3 h-3 text-red-300"></i> ថ្លៃសាំង
-                        </label>
-                        <input type="number" class="expense-input w-32 p-2 bg-white dark:bg-slate-900 border border-red-100 dark:border-gray-700 rounded-lg text-right focus:border-santaRed outline-none transition" placeholder="0" oninput="calculateAll(true)">
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <label class="text-sm text-gray-600 dark:text-gray-400">សងគេ</label>
-                        <input type="number" class="expense-input w-32 p-2 bg-white dark:bg-slate-900 border border-red-100 dark:border-gray-700 rounded-lg text-right focus:border-santaRed outline-none transition" placeholder="0" oninput="calculateAll(true)">
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <label class="text-sm text-gray-600 dark:text-gray-400">ផ្ទះជួល</label>
-                        <input type="number" class="expense-input w-32 p-2 bg-white dark:bg-slate-900 border border-red-100 dark:border-gray-700 rounded-lg text-right focus:border-santaRed outline-none transition" placeholder="0" oninput="calculateAll(true)">
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <label class="text-sm text-gray-600 dark:text-gray-400">Skin Care</label>
-                        <input type="number" class="expense-input w-32 p-2 bg-white dark:bg-slate-900 border border-red-100 dark:border-gray-700 rounded-lg text-right focus:border-santaRed outline-none transition" placeholder="0" oninput="calculateAll(true)">
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <label class="text-sm text-gray-600 dark:text-gray-400">Internet</label>
-                        <input type="number" class="expense-input w-32 p-2 bg-white dark:bg-slate-900 border border-red-100 dark:border-gray-700 rounded-lg text-right focus:border-santaRed outline-none transition" placeholder="0" oninput="calculateAll(true)">
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <label class="text-sm text-gray-600 dark:text-gray-400">សម្លៀកបំពាក់</label>
-                        <input type="number" class="expense-input w-32 p-2 bg-white dark:bg-slate-900 border border-red-100 dark:border-gray-700 rounded-lg text-right focus:border-santaRed outline-none transition" placeholder="0" oninput="calculateAll(true)">
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <label class="text-sm text-gray-600 dark:text-gray-400">ថ្លៃអាហារ</label>
-                        <input type="number" class="expense-input w-32 p-2 bg-white dark:bg-slate-900 border border-red-100 dark:border-gray-700 rounded-lg text-right focus:border-santaRed outline-none transition" placeholder="0" oninput="calculateAll(true)">
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <label class="text-sm text-gray-600 dark:text-gray-400">ថ្លៃកាហ្វេ</label>
-                        <input type="number" class="expense-input w-32 p-2 bg-white dark:bg-slate-900 border border-red-100 dark:border-gray-700 rounded-lg text-right focus:border-santaRed outline-none transition" placeholder="0" oninput="calculateAll(true)">
-                    </div>
+            <!-- EXPENSE (RESTORED EYE ICON) -->
+            <section class="glass-card p-6 rounded-3xl shadow-sm border-t-4 border-santaRed h-full flex flex-col">
+                <div class="flex justify-between items-center mb-4 border-b border-red-50 dark:border-red-900/30 pb-4">
+                    <h2 class="text-xl font-bold text-santaRed dark:text-red-400 flex items-center gap-3 font-header">
+                        <div class="bg-red-100 dark:bg-red-900 p-2 rounded-lg">
+                            <i data-lucide="receipt" class="w-5 h-5 text-santaRed dark:text-red-300"></i>
+                        </div>
+                        <span data-i18n="expenseTitle">ចំណាយ (Expenses)</span>
+                    </h2>
+                    <!-- EXPENSE TOGGLE BUTTON (RESTORED) -->
+                    <button id="btn-expense-toggle" onclick="toggleExpensesList()" class="p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 text-santaRed dark:text-red-400 transition-all active:scale-95">
+                        <i data-lucide="eye" class="w-5 h-5"></i>
+                    </button>
                 </div>
-                <div class="mt-8 pt-4 border-t-2 border-dashed border-red-100 dark:border-red-900 flex justify-between items-baseline font-sans">
-                    <span class="font-medium text-gray-500 uppercase text-xs tracking-wider">សរុបចំណាយ</span>
+                
+                <div id="expenses-content" class="visible-content flex-1">
+                    <div id="expenses-container" class="space-y-3 font-sans pt-2">
+                        <!-- JS will insert rows here -->
+                    </div>
+                    <button onclick="addNewExpense()" class="mt-4 w-full py-2 rounded-xl border-2 border-dashed border-red-300 dark:border-red-800 text-red-500 dark:text-red-400 text-sm font-bold hover:bg-red-50 dark:hover:bg-red-900/20 transition flex items-center justify-center gap-2">
+                        <i data-lucide="plus" class="w-4 h-4"></i> <span data-i18n="addExpense">បន្ថែមចំណាយថ្មី</span>
+                    </button>
+                </div>
+                
+                <div class="mt-auto pt-4 border-t-2 border-dashed border-red-100 dark:border-red-900 flex justify-between items-baseline font-sans">
+                    <span class="font-medium text-gray-500 uppercase text-xs tracking-wider" data-i18n="totalExpense">សរុបចំណាយ</span>
                     <span id="totalExpense" class="text-2xl font-bold text-santaRed dark:text-red-400">$0.00</span>
                 </div>
             </section>
         </div>
 
-        <!-- FOOTER: Created By & Donate -->
-        <footer class="text-center py-6 mt-6 flex flex-col md:flex-row gap-4 justify-center items-center">
-             <div class="inline-flex items-center justify-center gap-2 px-6 py-2 bg-white/50 dark:bg-darkNight/50 backdrop-blur-sm rounded-full border border-gray-200 dark:border-gray-700 shadow-sm transition hover:scale-105 hover:border-santaRed cursor-default">
-                 <p class="text-gray-600 dark:text-gray-400 text-sm font-sans font-bold flex items-center gap-2">
-                     បង្កើតដោយ <span class="text-santaRed dark:text-green-400 font-header text-lg">ហ៊ុន សំណាង</span> ❤️
-                 </p>
+        <!-- FOOTER -->
+        <footer class="text-center py-8 mt-6 flex flex-col items-center gap-6">
+             <!-- Created By -->
+             <div class="relative inline-flex items-center gap-3 px-8 py-2.5 rounded-full border border-slate-600 dark:border-slate-700 bg-slate-800/90 dark:bg-slate-900/90 shadow-lg backdrop-blur-md">
+                 <span class="text-gray-400 font-sans text-sm" data-i18n="createdBy">បង្កើតដោយ</span>
+                 <span id="creator-name" class="text-neonGreen font-header tracking-wide text-xl">ហ៊ុន សំណាង</span>
+                 <span class="text-red-500 text-lg animate-pulse">❤️</span>
              </div>
              
              <!-- Donate Button -->
-             <button onclick="toggleModal('donate-modal')" class="inline-flex items-center justify-center gap-2 px-6 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition active:scale-95 animate-bounce-slow">
-                 <span class="font-sans font-bold text-sm">Donate Admin ☕</span>
+             <button onclick="toggleModal('donate-modal')" class="relative inline-flex items-center gap-3 px-10 py-3 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 active:scale-95 group overflow-hidden">
+                 <div class="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/30 to-transparent z-10"></div>
+                 <i data-lucide="qr-code" class="w-6 h-6 text-white z-20"></i>
+                 <span class="text-white font-bold text-lg font-sans tracking-wide z-20" data-i18n="donateBtn">Donate Admin</span>
+                 <span class="text-2xl z-20">☕</span>
              </button>
+
+             <!-- Social -->
+             <div class="flex gap-6 items-center justify-center mt-2 mb-10">
+                 <a href="https://t.me/hunsamnang" target="_blank" class="text-gray-400 hover:text-[#24A1DE] transition-colors transform hover:scale-110 duration-200">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                 </a>
+                 <a href="https://wa.me/qr/H35HQISESRRLB1" target="_blank" class="text-gray-400 hover:text-[#25D366] transition-colors transform hover:scale-110 duration-200">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-phone-call"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/><path d="M14.05 2a9 9 0 0 1 8 7.94"/><path d="M14.05 6A5 5 0 0 1 18 10"/></svg>
+                 </a>
+                 <a href="https://www.facebook.com/share/1PWhx9BWRR/?mibextid=wwXIfr" target="_blank" class="text-gray-400 hover:text-[#1877F2] transition-colors transform hover:scale-110 duration-200">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-facebook"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                 </a>
+             </div>
         </footer>
 
-        <!-- GRAND TOTAL FLOATING BAR -->
-        <div class="sticky bottom-4 z-40">
+        <!-- GRAND TOTAL -->
+        <div id="grandTotalBar" class="sticky bottom-4 z-40">
             <section class="relative bg-gradient-to-r from-santaRed to-red-700 dark:from-pineGreen dark:to-green-900 text-white p-5 rounded-3xl shadow-2xl flex items-center justify-between overflow-hidden border-2 border-white/20">
                 <div class="absolute top-0 right-10 w-12 h-full bg-gold/30 skew-x-12"></div>
                 <div class="absolute top-0 right-14 w-2 h-full bg-gold/50 skew-x-12"></div>
@@ -286,8 +348,8 @@
                         <i data-lucide="gift" class="w-6 h-6 text-white"></i>
                     </div>
                     <div>
-                        <h3 class="text-yellow-100 text-xs md:text-sm font-medium mb-0.5 font-header">ប្រាក់ខែនៅសល់ (Balance)</h3>
-                        <p class="text-[10px] text-white/80 font-sans">សរុបទុកក្នុងកូនជ្រូក 🐖</p>
+                        <h3 class="text-yellow-100 text-xs md:text-sm font-medium mb-0.5 font-header" data-i18n="balanceTitle">ប្រាក់ខែនៅសល់ (Balance)</h3>
+                        <p class="text-[10px] text-white/80 font-sans" data-i18n="balanceSub">សរុបទុកក្នុងកូនជ្រូក 🐖</p>
                     </div>
                 </div>
                 <h1 id="grandTotal" class="relative z-10 text-3xl md:text-5xl font-bold tracking-tight text-white font-mono drop-shadow-md">$0.00</h1>
@@ -295,100 +357,439 @@
         </div>
     </main>
 
-    <!-- OT MODAL (POPUP) -->
-    <div id="ot-modal" class="fixed inset-0 z-50 hidden modal-overlay" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="fixed inset-0 bg-darkNight/80 backdrop-blur-sm transition-opacity" onclick="toggleModal('ot-modal')"></div>
+    <!-- DOWNLOAD REPORT MODAL -->
+    <div id="download-modal" class="fixed inset-0 z-50 hidden modal-overlay" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-darkNight/80 backdrop-blur-sm transition-opacity" onclick="toggleModal('download-modal')"></div>
         <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-3xl bg-white dark:bg-darkCard text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-3xl modal-enter border-4 border-santaRed dark:border-green-800">
+            <div class="relative transform overflow-hidden rounded-3xl bg-white dark:bg-darkCard text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md modal-enter border-4 border-santaRed dark:border-green-800">
                 <div class="absolute top-0 left-0 w-full h-2 bg-candy-cane"></div>
-                <div class="bg-white dark:bg-darkCard px-4 pb-4 pt-6 sm:p-6 sm:pb-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-                    <h3 class="text-xl font-bold leading-6 text-santaRed dark:text-white flex items-center gap-2 font-header">
-                        <i data-lucide="scroll" class="w-6 h-6 text-gold"></i>
-                        តារាងកត់ម៉ោង (Santa's List)
-                    </h3>
-                    <button onclick="toggleModal('ot-modal')" class="text-gray-400 hover:text-red-500 transition bg-red-50 dark:bg-slate-800 p-2 rounded-full">
-                        <i data-lucide="x" class="w-5 h-5"></i>
-                    </button>
-                </div>
-                <div class="px-4 py-4 sm:p-6 max-h-[60vh] overflow-y-auto">
-                    <div class="overflow-x-auto rounded-xl border-2 border-gray-100 dark:border-slate-700">
-                        <table class="w-full text-sm text-left font-sans">
-                            <thead class="bg-red-50 dark:bg-slate-800 text-santaRed dark:text-red-300 font-bold">
-                                <tr>
-                                    <th class="p-3 whitespace-nowrap">កាលបរិច្ឆេទ</th>
-                                    <th class="p-3 whitespace-nowrap">ចូល</th>
-                                    <th class="p-3 whitespace-nowrap">ចេញ</th>
-                                    <th class="p-3 text-right whitespace-nowrap">1.5x</th>
-                                    <th class="p-3 text-right whitespace-nowrap">2.0x</th>
-                                    <th class="p-3 w-10"></th>
-                                </tr>
-                            </thead>
-                            <tbody id="otTableBody" class="divide-y divide-gray-100 dark:divide-gray-700">
-                            </tbody>
-                        </table>
+                
+                <div id="report-capture-area" class="bg-slate-50 dark:bg-slate-900 p-6 font-sans relative">
+                    <div class="receipt-zigzag absolute top-0 left-0 w-full"></div>
+                    
+                    <div class="text-center mb-6 mt-2">
+                        <div class="mx-auto w-12 h-12 bg-santaRed rounded-full flex items-center justify-center mb-2 shadow-lg">
+                            <i data-lucide="gift" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-header text-gray-800 dark:text-white" data-i18n="appTitle">Salary Calculator</h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400" id="report-date">Date: --/--/----</p>
                     </div>
-                    <button onclick="addOTRow()" class="mt-4 w-full py-3 bg-pineGreen hover:bg-green-800 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 border-b-4 border-green-900 font-sans">
-                        <i data-lucide="plus-circle" class="w-5 h-5"></i> បន្ថែមជួរថ្មី
-                    </button>
+
+                    <div class="space-y-3 border-t border-dashed border-gray-300 dark:border-gray-700 pt-4">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600 dark:text-gray-400" data-i18n="incomeTitle">Income</span>
+                            <span class="font-bold text-green-600" id="report-income">$0.00</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600 dark:text-gray-400" data-i18n="expenseTitle">Expenses</span>
+                            <span class="font-bold text-red-500" id="report-expense">$0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="my-4 border-t border-dashed border-gray-300 dark:border-gray-700"></div>
+
+                    <div id="report-expense-list" class="space-y-1 mb-4 text-xs text-gray-500 dark:text-gray-400">
+                    </div>
+
+                    <div class="bg-gray-200 dark:bg-slate-800 p-3 rounded-lg flex justify-between items-center">
+                        <span class="font-header text-gray-800 dark:text-white" data-i18n="balanceTitle">Balance</span>
+                        <span class="font-bold text-xl text-santaRed" id="report-balance">$0.00</span>
+                    </div>
+
+                    <div class="text-center mt-6">
+                        <p class="text-[10px] text-gray-400">Create by <span id="report-creator-name">ហ៊ុន សំណាង</span></p>
+                        <p class="text-[10px] text-gray-400">Merry Christmas 🎄</p>
+                    </div>
                 </div>
-                <div class="bg-gray-50 dark:bg-slate-800/50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 border-t border-gray-100 dark:border-gray-700">
-                    <button type="button" class="mt-3 inline-flex w-full justify-center rounded-xl bg-white dark:bg-slate-700 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-slate-600 sm:mt-0 sm:w-auto font-sans" onclick="toggleModal('ot-modal')">បិទ</button>
+
+                <div class="bg-white dark:bg-darkCard px-4 py-3 sm:px-6 flex gap-3 justify-center">
+                    <button onclick="downloadImage()" class="flex-1 inline-flex justify-center items-center gap-2 rounded-xl bg-green-600 hover:bg-green-700 text-white px-4 py-2 text-sm font-bold shadow-sm transition-all">
+                        <i data-lucide="download" class="w-4 h-4"></i> <span data-i18n="downloadBtn">Download Image</span>
+                    </button>
+                    <button onclick="toggleModal('download-modal')" class="flex-1 inline-flex justify-center items-center gap-2 rounded-xl bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-gray-800 dark:text-white px-4 py-2 text-sm font-bold shadow-sm transition-all" data-i18n="btnClose">
+                        Close
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- DONATE MODAL WITH QR PLACEHOLDER -->
+    <!-- OT MODAL -->
+    <div id="ot-modal" class="fixed inset-0 z-50 hidden modal-overlay" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-darkNight/80 backdrop-blur-sm transition-opacity" onclick="toggleModal('ot-modal')"></div>
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-3xl bg-white dark:bg-darkCard text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-3xl modal-enter border-4 border-santaRed dark:border-green-800">
+                <div class="absolute top-0 left-0 w-full h-2 bg-candy-cane"></div>
+                
+                <div class="bg-white dark:bg-darkCard px-4 pb-4 pt-6 sm:p-6 sm:pb-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                    <h3 class="text-xl font-bold leading-6 text-santaRed dark:text-white flex items-center gap-2 font-header">
+                        <i data-lucide="scroll" class="w-6 h-6 text-gold"></i>
+                        <span data-i18n="otModalTitle">តារាងកត់ម៉ោង</span>
+                        <button id="btn-ot-toggle" onclick="toggleOTList()" class="ml-2 p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-500 dark:text-gray-400 transition-all active:scale-95">
+                            <i data-lucide="eye" class="w-5 h-5"></i>
+                        </button>
+                    </h3>
+                    <button onclick="toggleModal('ot-modal')" class="text-gray-400 hover:text-red-500 transition bg-red-50 dark:bg-slate-800 p-2 rounded-full">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <div class="px-4 py-4 sm:p-6 max-h-[60vh] overflow-y-auto">
+                    <div id="ot-list-content" class="visible-content">
+                        <div class="overflow-x-auto rounded-xl border-2 border-gray-100 dark:border-slate-700 mb-4">
+                            <table class="w-full text-sm text-left font-sans">
+                                <thead class="bg-red-50 dark:bg-slate-800 text-santaRed dark:text-red-300 font-bold">
+                                    <tr>
+                                        <th class="p-3 whitespace-nowrap" data-i18n="thDate">កាលបរិច្ឆេទ</th>
+                                        <th class="p-3 whitespace-nowrap" data-i18n="thIn">ចូល</th>
+                                        <th class="p-3 whitespace-nowrap" data-i18n="thOut">ចេញ</th>
+                                        <th class="p-3 text-right whitespace-nowrap">1.5x</th>
+                                        <th class="p-3 text-right whitespace-nowrap">2.0x</th>
+                                        <th class="p-3 w-10"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="otTableBody" class="divide-y divide-gray-100 dark:divide-gray-700">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <button onclick="addOTRow()" class="mt-2 w-full py-3 bg-pineGreen hover:bg-green-800 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 border-b-4 border-green-900 font-sans">
+                        <i data-lucide="plus-circle" class="w-5 h-5"></i> <span data-i18n="btnAddRow">បន្ថែមជួរថ្មី</span>
+                    </button>
+                </div>
+
+                <div class="bg-gray-50 dark:bg-slate-800/50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 border-t border-gray-100 dark:border-gray-700">
+                    <button type="button" class="mt-3 inline-flex w-full justify-center rounded-xl bg-white dark:bg-slate-700 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-slate-600 sm:mt-0 sm:w-auto font-sans" onclick="toggleModal('ot-modal')" data-i18n="btnClose">បិទ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DONATE MODAL FIXED -->
     <div id="donate-modal" class="fixed inset-0 z-50 hidden modal-overlay" aria-labelledby="donate-modal-title" role="dialog" aria-modal="true">
         <div class="fixed inset-0 bg-darkNight/80 backdrop-blur-sm transition-opacity" onclick="toggleModal('donate-modal')"></div>
-
         <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-3xl bg-white dark:bg-darkCard text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md modal-enter border-4 border-gold">
-                
-                <!-- Decoration -->
+            <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md modal-enter border-4 border-gold">
                 <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-yellow-400 to-orange-500"></div>
-
-                <!-- Header -->
-                <div class="bg-white dark:bg-darkCard px-4 pb-4 pt-6 text-center">
-                    <div class="mx-auto flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/30 mb-4 animate-bounce">
-                        <i data-lucide="coffee" class="w-8 h-8 text-orange-500"></i>
+                <div class="bg-white px-4 pb-4 pt-6 text-center">
+                    <div class="mx-auto flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-yellow-100 mb-4 animate-bounce">
+                        <i data-lucide="qr-code" class="w-8 h-8 text-orange-500"></i>
                     </div>
-                    <h3 class="text-2xl font-bold leading-6 text-gray-900 dark:text-white font-header mb-2" id="donate-modal-title">
+                    <h3 class="text-2xl font-bold leading-6 text-santaRed font-sans mb-2" id="donate-modal-title" data-i18n="donateTitle">
                         ឧបត្ថម្ភគាំទ្រ Admin ☕
                     </h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 font-sans">
+                    <p class="text-sm text-gray-500 font-sans" data-i18n="donateSub">
                         Scan. Pay. Done.
                     </p>
                 </div>
-
-                <!-- Body (QR Code Area) -->
                 <div class="px-6 py-4 text-center">
-                    <div class="bg-gray-100 dark:bg-slate-800 p-4 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-600 flex flex-col items-center justify-center gap-2">
-                        
-                        <!-- IMPORTANT: Replace the src below with your actual QR code image path or URL -->
+                    <div class="bg-gray-100 p-4 rounded-2xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center gap-2">
                         <div class="w-64 h-64 bg-white p-2 rounded-lg shadow-sm">
+                            <!-- REPLACE WITH YOUR QR CODE URL HERE -->
                             <img src="my_qr.jpg" alt="ABA QR Code" class="w-full h-full object-contain">
                         </div>
-                        
                         <div class="mt-2 text-center w-full">
                             <p class="text-xs text-gray-500 font-bold uppercase tracking-widest mb-1">ABA Bank</p>
-                            <p class="text-lg font-bold text-gray-800 dark:text-gray-200">HUN SAMNANG</p>
-                            <!-- You can add account number here if you want -->
+                            <p class="text-lg font-bold text-gray-800">HUN SAMNANG</p>
                         </div>
                     </div>
                 </div>
-
-                <!-- Footer -->
-                <div class="bg-gray-50 dark:bg-slate-800/50 px-4 py-3 sm:px-6 flex justify-center">
-                    <button type="button" class="inline-flex w-full justify-center rounded-xl bg-gradient-to-r from-santaRed to-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:opacity-90 sm:w-auto font-sans" onclick="toggleModal('donate-modal')">បិទ</button>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 flex justify-center">
+                    <button type="button" class="inline-flex w-full justify-center rounded-xl bg-gradient-to-r from-santaRed to-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:opacity-90 sm:w-auto font-sans" onclick="toggleModal('donate-modal')" data-i18n="btnClose">បិទ</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        // Initialize Lucide immediately
         lucide.createIcons();
 
+        // --- TRANSLATIONS ---
+        const translations = {
+            km: {
+                appTitle: "គណនាប្រាក់ខែ",
+                otTableBtn: "តារាង OT",
+                settingsTitle: "ការកំណត់ប្រាក់ខែគោល",
+                baseSalary: "ប្រាក់ខែគោល ($)",
+                workDays: "ថ្ងៃធ្វើការ/ខែ",
+                workHours: "ម៉ោងធ្វើការ/ថ្ងៃ",
+                rate1h: "1 ម៉ោង",
+                totalOtTitle: "សរុបម៉ោង OT",
+                ot150: "OT 150% (ម៉ោង)",
+                ot200: "OT 200% (ម៉ោង)",
+                incomeTitle: "ចំណូល (Income)",
+                totalOtMoney: "ប្រាក់ OT សរុប",
+                foodAllowance: "ថ្លៃបាយ",
+                bonus: "លើកទឹកចិត្ត (Bonus)",
+                totalIncome: "សរុបចំណូល",
+                expenseTitle: "ចំណាយ (Expenses)",
+                addExpense: "បន្ថែមចំណាយថ្មី",
+                totalExpense: "សរុបចំណាយ",
+                createdBy: "បង្កើតដោយ",
+                donateBtn: "Donate Admin",
+                balanceTitle: "ប្រាក់ខែនៅសល់ (Balance)",
+                balanceSub: "សរុបទុកក្នុងកូនជ្រូក 🐖",
+                otModalTitle: "តារាងកត់ម៉ោង",
+                thDate: "កាលបរិច្ឆេទ",
+                thIn: "ចូល",
+                thOut: "ចេញ",
+                btnAddRow: "បន្ថែមជួរថ្មី",
+                btnClose: "បិទ",
+                donateTitle: "ឧបត្ថម្ភគាំទ្រ Admin ☕",
+                donateSub: "Scan. Pay. Done.",
+                expenseNamePlaceholder: "ឈ្មោះចំណាយ",
+                exportTitle: "របាយការណ៍សង្ខេប",
+                downloadBtn: "ទាញយក (រូបភាព)"
+            },
+            en: {
+                appTitle: "Salary Calculator",
+                otTableBtn: "OT Table",
+                settingsTitle: "Base Salary Settings",
+                baseSalary: "Base Salary ($)",
+                workDays: "Work Days/Month",
+                workHours: "Work Hours/Day",
+                rate1h: "1 Hour",
+                totalOtTitle: "Total OT Hours",
+                ot150: "OT 150% (Hours)",
+                ot200: "OT 200% (Hours)",
+                incomeTitle: "Income",
+                totalOtMoney: "Total OT Amount",
+                foodAllowance: "Food Allowance",
+                bonus: "Incentive (Bonus)",
+                totalIncome: "Total Income",
+                expenseTitle: "Expenses",
+                addExpense: "Add New Expense",
+                totalExpense: "Total Expense",
+                createdBy: "Created By",
+                donateBtn: "Donate Admin",
+                balanceTitle: "Net Balance",
+                balanceSub: "Savings for Piggy Bank 🐖",
+                otModalTitle: "Overtime Record",
+                thDate: "Date",
+                thIn: "In",
+                thOut: "Out",
+                btnAddRow: "Add New Row",
+                btnClose: "Close",
+                donateTitle: "Support Admin ☕",
+                donateSub: "Scan. Pay. Done.",
+                expenseNamePlaceholder: "Expense Name",
+                exportTitle: "Summary Report",
+                downloadBtn: "Download Image"
+            },
+            vi: {
+                appTitle: "Tính Lương",
+                otTableBtn: "Bảng OT",
+                settingsTitle: "Cài Đặt Lương Cơ Bản",
+                baseSalary: "Lương Cơ Bản ($)",
+                workDays: "Ngày Làm Việc/Tháng",
+                workHours: "Giờ Làm Việc/Ngày",
+                rate1h: "1 Giờ",
+                totalOtTitle: "Tổng Giờ OT",
+                ot150: "OT 150% (Giờ)",
+                ot200: "OT 200% (Giờ)",
+                incomeTitle: "Thu Nhập (Income)",
+                totalOtMoney: "Tổng Tiền OT",
+                foodAllowance: "Tiền Ăn",
+                bonus: "Thưởng (Bonus)",
+                totalIncome: "Tổng Thu Nhập",
+                expenseTitle: "Chi Phí (Expenses)",
+                addExpense: "Thêm Chi Phí Mới",
+                totalExpense: "Tổng Chi Phí",
+                createdBy: "Tạo bởi",
+                donateBtn: "Donate Admin",
+                balanceTitle: "Số Dư Thực Tế (Balance)",
+                balanceSub: "Tiết kiệm cho heo đất 🐖",
+                otModalTitle: "Ghi Chép OT",
+                thDate: "Ngày",
+                thIn: "Vào",
+                thOut: "Ra",
+                btnAddRow: "Thêm Dòng Mới",
+                btnClose: "Đóng",
+                donateTitle: "Ủng Hộ Admin ☕",
+                donateSub: "Quét. Trả. Xong.",
+                expenseNamePlaceholder: "Tên chi phí",
+                exportTitle: "Báo Cáo Tóm Tắt",
+                downloadBtn: "Tải Ảnh"
+            }
+        };
+
+        // Expense Dictionary for Translation
+        const expenseDictionary = {
+            fuel: { km: 'ថ្លៃសាំង', en: 'Gasoline', vi: 'Xăng xe' },
+            debt: { km: 'សងគេ', en: 'Debts', vi: 'Trả nợ' },
+            rent: { km: 'ផ្ទះជួល', en: 'Rent', vi: 'Tiền nhà' },
+            skincare: { km: 'Skin Care', en: 'Skin Care', vi: 'Mỹ phẩm' },
+            internet: { km: 'Internet', en: 'Internet', vi: 'Internet' },
+            clothes: { km: 'សម្លៀកបំពាក់', en: 'Clothes', vi: 'Quần áo' },
+            food: { km: 'ថ្លៃអាហារ', en: 'Food', vi: 'Ăn uống' },
+            coffee: { km: 'ថ្លៃកាហ្វេ', en: 'Coffee', vi: 'Cà phê' }
+        };
+
+        const expenseIcons = {
+            fuel: 'fuel',
+            debt: 'refresh-ccw',
+            rent: 'home',
+            skincare: 'sparkles',
+            internet: 'wifi',
+            clothes: 'shirt',
+            food: 'utensils',
+            coffee: 'coffee'
+        };
+
+        const defaultKeys = ['fuel', 'debt', 'rent', 'skincare', 'internet', 'clothes', 'food', 'coffee'];
+
+        let currentLang = localStorage.getItem('lang') || 'km';
+
+        function toggleLanguage() {
+            if (currentLang === 'km') {
+                currentLang = 'en';
+            } else if (currentLang === 'en') {
+                currentLang = 'vi';
+            } else {
+                currentLang = 'km';
+            }
+            localStorage.setItem('lang', currentLang);
+            updateLanguage();
+        }
+
+        function updateLanguage() {
+            // Update toggle button text
+            const langLabel = document.getElementById('lang-label');
+            if (currentLang === 'km') {
+                langLabel.innerText = 'KH';
+            } else if (currentLang === 'en') {
+                langLabel.innerText = 'EN';
+            } else {
+                langLabel.innerText = 'VN';
+            }
+            
+            // Update Body Class for Font
+            document.body.classList.remove('lang-en', 'lang-vi');
+            if(currentLang === 'en') {
+                document.body.classList.add('lang-en');
+            } else if(currentLang === 'vi') {
+                document.body.classList.add('lang-vi');
+            }
+
+            // Update Creator Name
+            const creatorNameEl = document.getElementById('creator-name');
+            if (creatorNameEl) {
+                creatorNameEl.innerText = currentLang === 'km' ? 'ហ៊ន សំណាង' : 'HUN SAMNANG';
+            }
+            const reportCreatorEl = document.getElementById('report-creator-name');
+            if (reportCreatorEl) {
+                reportCreatorEl.innerText = currentLang === 'km' ? 'ហ៊ន សំណាង' : 'HUN SAMNANG';
+            }
+
+            // Update all static text
+            const elements = document.querySelectorAll('[data-i18n]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[currentLang][key]) {
+                    el.innerText = translations[currentLang][key];
+                }
+            });
+
+            // Update placeholders for expense names
+            const expInputs = document.querySelectorAll('.expense-name-input');
+            expInputs.forEach(input => {
+                input.placeholder = translations[currentLang].expenseNamePlaceholder;
+            });
+
+            // Update Default Expense Rows
+            const expenseRows = document.querySelectorAll('.expense-name-input[data-key]');
+            expenseRows.forEach(input => {
+                const key = input.getAttribute('data-key');
+                if (expenseDictionary[key]) {
+                    input.value = expenseDictionary[key][currentLang];
+                }
+            });
+        }
+
+        function initExpenses() {
+            const container = document.getElementById('expenses-container');
+            container.innerHTML = '';
+            defaultKeys.forEach(key => {
+                createExpenseRow(expenseDictionary[key][currentLang], expenseIcons[key], key);
+            });
+        }
+
+        function createExpenseRow(nameVal = '', iconName = 'receipt', key = null) {
+            const container = document.getElementById('expenses-container');
+            const div = document.createElement('div');
+            div.className = "flex items-center justify-between gap-2 group";
+            
+            const dataKeyAttr = key ? `data-key="${key}"` : '';
+
+            div.innerHTML = `
+                <div class="flex items-center gap-2 flex-1 overflow-hidden">
+                    <i data-lucide="${iconName}" class="w-4 h-4 text-red-300 shrink-0"></i>
+                    <input type="text" value="${nameVal}" ${dataKeyAttr} class="expense-name-input bg-transparent border-b border-transparent focus:border-red-300 outline-none w-full text-sm text-gray-600 dark:text-gray-400 placeholder-gray-400 font-sans" placeholder="${translations[currentLang].expenseNamePlaceholder}">
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="number" class="expense-input w-24 p-2 bg-white dark:bg-slate-900 border border-red-100 dark:border-gray-700 rounded-lg text-right focus:border-santaRed outline-none transition text-sm" placeholder="0" oninput="calculateAll(true)">
+                    <button onclick="this.closest('.group').remove(); calculateAll(true)" class="text-gray-300 hover:text-red-500 p-1 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition shrink-0">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            `;
+            container.appendChild(div);
+            lucide.createIcons();
+        }
+
+        function addNewExpense() {
+            createExpenseRow('', 'receipt');
+        }
+
+        // --- REPORT & DOWNLOAD ---
+        function openDownloadModal() {
+            calculateAll(true); 
+            
+            const date = new Date().toLocaleDateString(currentLang === 'km' ? 'km-KH' : 'en-US');
+            document.getElementById('report-date').innerText = `Date: ${date}`;
+            
+            document.getElementById('report-income').innerText = document.getElementById('totalIncome').innerText;
+            document.getElementById('report-expense').innerText = document.getElementById('totalExpense').innerText;
+            document.getElementById('report-balance').innerText = document.getElementById('grandTotal').innerText;
+
+            // Populate List
+            const listContainer = document.getElementById('report-expense-list');
+            listContainer.innerHTML = '';
+            
+            const rows = document.querySelectorAll('#expenses-container .group');
+            let hasItems = false;
+            rows.forEach(row => {
+                const name = row.querySelector('.expense-name-input').value || "Expense";
+                const val = row.querySelector('.expense-input').value;
+                if (val && parseFloat(val) > 0) {
+                    hasItems = true;
+                    const item = document.createElement('div');
+                    item.className = "flex justify-between";
+                    item.innerHTML = `<span>${name}</span><span>$${parseFloat(val).toFixed(2)}</span>`;
+                    listContainer.appendChild(item);
+                }
+            });
+
+            if (!hasItems) {
+                listContainer.innerHTML = '<div class="text-center italic text-xs opacity-50">- No Expenses -</div>';
+            }
+
+            toggleModal('download-modal');
+        }
+
+        function downloadImage() {
+            const captureArea = document.getElementById('report-capture-area');
+            html2canvas(captureArea, { scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'salary_receipt.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
+
+        // --- TOGGLES ---
         function createSnowflake() {
             const snowflake = document.createElement('div');
             snowflake.classList.add('snowflake');
@@ -415,9 +816,61 @@
             localStorage.theme = htmlElement.classList.contains('dark') ? 'dark' : 'light';
         });
 
+        function toggleExpensesList() {
+            const content = document.getElementById('expenses-content');
+            const btn = document.getElementById('btn-expense-toggle');
+            const isHidden = content.classList.contains('hidden-content');
+            
+            if (isHidden) {
+                content.classList.remove('hidden-content');
+                content.classList.add('visible-content');
+                btn.innerHTML = '<i data-lucide="eye" class="w-5 h-5"></i>';
+            } else {
+                content.classList.remove('visible-content');
+                content.classList.add('hidden-content');
+                btn.innerHTML = '<i data-lucide="eye-off" class="w-5 h-5"></i>';
+            }
+            lucide.createIcons();
+        }
+
+        function toggleOTList() {
+            const content = document.getElementById('ot-list-content');
+            const btn = document.getElementById('btn-ot-toggle');
+            const isHidden = content.classList.contains('hidden-content');
+            
+            if (isHidden) {
+                content.classList.remove('hidden-content');
+                content.classList.add('visible-content');
+                btn.innerHTML = '<i data-lucide="eye" class="w-5 h-5"></i>';
+            } else {
+                content.classList.remove('visible-content');
+                content.classList.add('hidden-content');
+                btn.innerHTML = '<i data-lucide="eye-off" class="w-5 h-5"></i>';
+            }
+            lucide.createIcons();
+        }
+
         function toggleModal(modalId) {
             const modal = document.getElementById(modalId);
             if (modal) modal.classList.toggle('hidden');
+        }
+
+        // --- INITIAL STATE SETUP ---
+        function setInitialState() {
+            // Expenses: Collapsed by default (Eye Off)
+            const expContent = document.getElementById('expenses-content');
+            const expBtn = document.getElementById('btn-expense-toggle');
+            // EXPENSES VISIBLE BY DEFAULT
+            expContent.classList.add('visible-content'); 
+            expBtn.innerHTML = '<i data-lucide="eye" class="w-5 h-5"></i>';
+
+            // OT List: Visible by default (Eye On)
+            const otContent = document.getElementById('ot-list-content');
+            const otBtn = document.getElementById('btn-ot-toggle');
+            otContent.classList.add('visible-content');
+            otBtn.innerHTML = '<i data-lucide="eye" class="w-5 h-5"></i>';
+
+            lucide.createIcons();
         }
 
         function calculateAll(isManualInput = false) {
@@ -436,7 +889,6 @@
             let tableHours150 = 0;
             let tableHours200 = 0;
             const rows = document.querySelectorAll('#otTableBody tr');
-            const hasTableRows = rows.length > 0;
             rows.forEach(row => {
                 const start = row.querySelector('.start-time').value;
                 const end = row.querySelector('.end-time').value;
@@ -517,6 +969,10 @@
             lucide.createIcons();
         }
 
+        // Initialize
+        updateLanguage(); // Apply lang first
+        initExpenses();
+        setInitialState(); // Set default toggles
         addOTRow();
         calculateAll();
     </script>
