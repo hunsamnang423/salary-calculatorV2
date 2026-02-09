@@ -3,809 +3,448 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Khmer Salary Calculator</title>
+    <title>CNY Salary Calculator - Year of Horse</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Dangrek&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dangrek&family=Kantumruy+Pro:wght@300;400;600;700&family=Moul&display=swap" rel="stylesheet">
     <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- HTML2Canvas -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    
+    <!-- Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
     <script>
         tailwind.config = {
-            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['"Battambang"', '"Poppins"', 'sans-serif'],
-                        header: ['"Dangrek"', '"Poppins"', 'cursive'],
+                        sans: ['"Kantumruy Pro"', 'sans-serif'],
+                        header: ['"Dangrek"', 'cursive'],
+                        wishes: ['"Moul"', 'serif'],
                     },
                     colors: {
-                        khmerBlue: '#032EA1',
-                        khmerRed: '#E00025',
-                        khmerGold: '#FFB600',
-                        darkNight: '#0f172a',
+                        luckyRed: '#D90429',
+                        deepRed: '#8D0801',
+                        richGold: '#FFD700',
+                        softCream: '#FFF8E7',
+                        abaBlue: '#005F92',
+                        wingGreen: '#9CCB3B',
+                    },
+                    boxShadow: {
+                        'gold': '0 4px 14px 0 rgba(255, 215, 0, 0.39)',
+                        'red': '0 4px 14px 0 rgba(217, 4, 41, 0.39)',
                     },
                     animation: {
-                        'float': 'float 3s ease-in-out infinite',
+                        'fade-in-up': 'fadeInUp 1s ease-out forwards',
+                        'gallop': 'gallop 2s infinite',
+                        'pulse-slow': 'pulse 3s infinite',
                     },
                     keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-5px)' },
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        gallop: {
+                            '0%, 100%': { transform: 'translateY(0) rotate(0deg)' },
+                            '25%': { transform: 'translateY(-5px) rotate(-5deg)' },
+                            '75%': { transform: 'translateY(5px) rotate(5deg)' },
                         }
+                    },
+                    backgroundImage: {
+                        'cloud-pattern': "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23D90429' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")",
                     }
                 }
             }
         }
     </script>
+
     <style>
         body {
-            font-family: 'Battambang', sans-serif;
-            overflow-x: hidden;
-        }
-        body.lang-en, body.lang-vi {
-            font-family: 'Poppins', sans-serif;
-        }
-
-        /* --- KRAMA PATTERN --- */
-        .bg-krama {
-            background-color: #f8fafc;
-            background-image: 
-                linear-gradient(90deg, rgba(200, 0, 0, 0.03) 50%, transparent 50%),
-                linear-gradient(rgba(200, 0, 0, 0.03) 50%, transparent 50%);
-            background-size: 20px 20px;
-        }
-        .dark .bg-krama {
-            background-color: #0f172a;
-            background-image: 
-                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 50%, transparent 50%),
-                linear-gradient(rgba(255, 255, 255, 0.03) 50%, transparent 50%);
-        }
-
-        /* --- KRAMA STRIP --- */
-        .krama-strip {
-            height: 6px;
-            width: 100%;
-            background: repeating-linear-gradient(
-                45deg,
-                #E00025,
-                #E00025 10px,
-                #ffffff 10px,
-                #ffffff 20px,
-                #032EA1 20px,
-                #032EA1 30px,
-                #ffffff 30px,
-                #ffffff 40px
-            );
-        }
-
-        /* --- CARD STYLE --- */
-        .khmer-card {
-            background: rgba(255, 255, 255, 0.95);
-            border: 1px solid rgba(226, 232, 240, 0.8);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            border-radius: 1rem;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.2s ease;
-        }
-        .dark .khmer-card {
-            background: rgba(30, 41, 59, 0.95);
-            border-color: rgba(255, 255, 255, 0.05);
-        }
-
-        h1, h2, h3, .font-header {
-            font-family: 'Dangrek', cursive;
-            letter-spacing: 0.5px;
-        }
-
-        /* --- GOLDEN PARTICLES --- */
-        #particles-container {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 0; overflow: hidden;
-        }
-        .gold-particle {
-            position: absolute; top: -10px;
-            background: linear-gradient(135deg, #FFD700, #FFF8DC);
-            border-radius: 50%; box-shadow: 0 0 4px #FFD700;
-            animation: fall linear infinite;
-        }
-        @keyframes fall {
-            0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
-            10% { opacity: 0.8; }
-            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
-        }
-
-        /* --- EXPENSE TOGGLE ANIMATION --- */
-        #expenses-content {
-            transition: all 0.3s ease-in-out;
-            overflow: hidden;
-        }
-        .hidden-content {
-            max-height: 0 !important;
-            opacity: 0 !important;
-            margin-top: 0 !important;
-            pointer-events: none;
-        }
-        .visible-content {
-            max-height: 1000px; /* Large enough to fit content */
-            opacity: 1;
-            margin-top: 1rem;
+            background-color: #FFF8E7;
+            font-family: 'Kantumruy Pro', sans-serif;
+            overflow: hidden; 
         }
         
-        /* Receipt Pattern */
-        .receipt-zigzag {
-            background: linear-gradient(-45deg, transparent 16px, #F8FAFC 0), linear-gradient(45deg, transparent 16px, #F8FAFC 0);
-            background-repeat: repeat-x;
-            background-position: left bottom;
-            background-size: 22px 32px;
-            content: ""; display: block; width: 100%; height: 32px; position: relative; top: 0px; left: 0px;
+        .scroll-enabled {
+            overflow: auto;
+        }
+
+        /* --- SPLASH SCREEN --- */
+        #splash-screen {
+            background: radial-gradient(circle at center, #D90429, #8D0801);
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease-in-out, visibility 0.8s;
+        }
+        
+        .splash-hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        /* --- DECORATIVE BORDER --- */
+        .chinese-border {
+            position: relative;
+            background: #FFF;
+            border: 2px solid #D90429;
+            border-radius: 16px;
+        }
+        .chinese-border::after {
+            content: '';
+            position: absolute;
+            top: 4px; left: 4px; right: 4px; bottom: 4px;
+            border: 1px solid #FFD700;
+            border-radius: 12px;
+            pointer-events: none;
+        }
+
+        /* --- CUSTOM INPUTS --- */
+        .input-festive {
+            background: #FFF;
+            border: 2px solid #FFE4E6;
+            color: #8D0801;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-weight: 700;
+        }
+        .input-festive:focus {
+            border-color: #D90429;
+            box-shadow: 0 0 0 3px rgba(217, 4, 41, 0.1);
+            outline: none;
+        }
+        
+        /* Floating decoration */
+        .lantern-swing {
+            animation: swing 3s ease-in-out infinite;
+            transform-origin: top center;
+        }
+        @keyframes swing {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+
+        /* Gradient Text */
+        .text-gradient-gold {
+            background: linear-gradient(to right, #FFD700, #FDB931);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
     </style>
 </head>
-<body class="bg-krama text-gray-800 dark:text-gray-100 min-h-screen transition-colors duration-500 relative flex flex-col">
+<body>
 
-    <div id="particles-container"></div>
-
-    <!-- Navbar -->
-    <nav class="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md shadow-sm border-b border-gray-200 dark:border-gray-800">
-        <div class="krama-strip absolute top-0 left-0"></div>
-        <div class="max-w-4xl mx-auto px-4 py-3 mt-1 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="bg-khmerBlue p-2 rounded-lg shadow-md animate-float">
-                    <i data-lucide="calculator" class="w-6 h-6 text-white"></i>
-                </div>
-                <div>
-                    <h1 class="text-xl md:text-2xl text-khmerBlue dark:text-khmerGold pt-1 tracking-wide" data-i18n="appTitle">គណនាប្រាក់ខែ</h1>
-                    <p class="text-[10px] text-gray-500 dark:text-gray-400 -mt-0.5 font-medium font-sans">Smart Calculator</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-2">
-                <button onclick="toggleLanguage()" class="min-w-[35px] px-2 py-1 rounded-lg bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 text-khmerBlue dark:text-khmerGold text-xs font-bold transition-all border border-gray-200 dark:border-slate-700">
-                    <span id="lang-label">KH</span>
-                </button>
-                <button onclick="openDownloadModal()" class="p-2 rounded-lg bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 text-khmerBlue dark:text-khmerGold transition-all active:scale-95" title="Download Report">
-                    <i data-lucide="download" class="w-5 h-5"></i>
-                </button>
-                <button id="theme-toggle" class="p-2 rounded-lg bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 text-khmerBlue dark:text-khmerGold transition-all">
-                    <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
-                    <i data-lucide="sun" class="w-5 h-5 hidden dark:block text-yellow-300"></i>
-                </button>
-            </div>
-        </div>
-    </nav>
-
-    <main class="max-w-4xl mx-auto p-4 md:p-6 space-y-6 flex-grow pb-32 relative z-10">
+    <!-- 1. SPLASH SCREEN (Welcome Greeting) -->
+    <div id="splash-screen">
+        <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/black-scales.png')]"></div>
         
-        <!-- SETUP SECTION -->
-        <section class="khmer-card">
-            <div class="krama-strip"></div>
-            <div class="p-6">
-                <h2 class="text-xl font-bold mb-6 text-khmerBlue dark:text-blue-400 flex items-center gap-2 font-header">
-                    <i data-lucide="settings-2" class="w-6 h-6 text-khmerGold"></i>
-                    <span data-i18n="settingsTitle">ការកំណត់ប្រាក់ខែគោល</span>
-                </h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    <div class="relative group">
-                        <label class="block text-xs font-bold uppercase text-gray-500 dark:text-gray-400 mb-1.5 font-sans" data-i18n="baseSalary">ប្រាក់ខែគោល ($)</label>
-                        <input type="number" id="baseSalary" value="500" class="w-full p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-khmerBlue focus:border-khmerBlue outline-none font-bold text-xl text-khmerBlue dark:text-white transition-all font-sans text-center" oninput="calculateAll()">
-                    </div>
-                    <div class="relative group">
-                        <label class="block text-xs font-bold uppercase text-gray-500 dark:text-gray-400 mb-1.5 font-sans" data-i18n="workDays">ថ្ងៃធ្វើការ/ខែ</label>
-                        <input type="number" id="workDays" value="26" class="w-full p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-khmerBlue focus:border-khmerBlue outline-none text-lg font-sans text-center" oninput="calculateAll()">
-                    </div>
-                    <div class="relative group">
-                        <label class="block text-xs font-bold uppercase text-gray-500 dark:text-gray-400 mb-1.5 font-sans" data-i18n="workHours">ម៉ោងធ្វើការ/ថ្ងៃ</label>
-                        <input type="number" id="workHours" value="8" class="w-full p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-khmerBlue focus:border-khmerBlue outline-none text-lg font-sans text-center" oninput="calculateAll()">
-                    </div>
-                </div>
-                <div class="grid grid-cols-3 gap-4 font-sans text-sm">
-                    <div class="bg-gray-100 dark:bg-slate-800 rounded-lg py-2 px-3 text-center border-l-4 border-gray-400 shadow-sm">
-                        <p class="text-[10px] text-gray-500 font-bold uppercase" data-i18n="rate1h">1 ម៉ោង</p>
-                        <p id="rate100" class="text-base font-bold text-gray-700 dark:text-gray-300">0.00</p>
-                    </div>
-                    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg py-2 px-3 text-center border-l-4 border-khmerBlue shadow-sm">
-                        <p class="text-[10px] text-khmerBlue dark:text-blue-300 font-bold uppercase">150% (OT)</p>
-                        <p id="rate150" class="text-base font-bold text-khmerBlue dark:text-blue-200">0.00</p>
-                    </div>
-                    <div class="bg-red-50 dark:bg-red-900/20 rounded-lg py-2 px-3 text-center border-l-4 border-khmerRed shadow-sm">
-                        <p class="text-[10px] text-khmerRed dark:text-red-300 font-bold uppercase">200% (OT)</p>
-                        <p id="rate200" class="text-base font-bold text-khmerRed dark:text-red-200">0.00</p>
-                    </div>
-                </div>
+        <div class="absolute top-0 w-full flex justify-between px-10 pointer-events-none">
+            <div class="lantern-swing h-32 w-20 bg-gradient-to-b from-red-600 to-red-900 rounded-b-xl border-2 border-yellow-400 shadow-xl flex items-center justify-center text-yellow-400 font-header text-3xl">
+                <span>福</span>
             </div>
-        </section>
-
-        <!-- MANUAL OT INPUTS -->
-        <section class="khmer-card">
-            <div class="krama-strip"></div>
-            <div class="p-6">
-                <h2 class="text-xl font-bold mb-4 text-gray-700 dark:text-white flex items-center gap-2 font-header">
-                    <div class="w-2 h-6 bg-khmerGold rounded-full shadow-md"></div>
-                    <span data-i18n="totalOtTitle">សរុបម៉ោង OT</span>
-                </h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="relative">
-                        <label class="block text-sm font-bold text-gray-500 dark:text-gray-400 mb-2 font-sans" data-i18n="ot150">OT 150% (ម៉ោង)</label>
-                        <div class="relative group">
-                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <span class="bg-blue-100 text-khmerBlue text-[10px] font-bold px-1.5 py-0.5 rounded border border-blue-200">1.5x</span>
-                            </div>
-                            <input type="number" id="manualHours150" placeholder="0" class="w-full pl-14 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xl font-bold focus:ring-2 focus:ring-khmerBlue outline-none text-khmerBlue dark:text-blue-300 transition font-sans" oninput="calculateAll(true)">
-                        </div>
-                    </div>
-                    <div class="relative">
-                        <label class="block text-sm font-bold text-gray-500 dark:text-gray-400 mb-2 font-sans" data-i18n="ot200">OT 200% (ម៉ោង)</label>
-                        <div class="relative group">
-                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <span class="bg-red-100 text-khmerRed text-[10px] font-bold px-1.5 py-0.5 rounded border border-red-200">2.0x</span>
-                            </div>
-                            <input type="number" id="manualHours200" placeholder="0" class="w-full pl-14 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xl font-bold focus:ring-2 focus:ring-khmerRed outline-none text-khmerRed dark:text-red-300 transition font-sans" oninput="calculateAll(true)">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- INCOME & EXPENSE -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- INCOME -->
-            <section class="khmer-card p-6 border-l-4 border-l-green-500">
-                <h2 class="text-xl font-bold mb-6 text-green-700 dark:text-green-400 flex items-center gap-3 pb-4 border-b border-dashed border-slate-200 dark:border-slate-700 font-header">
-                    <div class="bg-green-100 dark:bg-green-900 p-2 rounded-lg shadow-sm">
-                        <i data-lucide="banknote" class="w-5 h-5 text-green-700 dark:text-green-300"></i>
-                    </div>
-                    <span data-i18n="incomeTitle">ចំណូល (Income)</span>
-                </h2>
-                <div class="space-y-4 font-sans">
-                    <div class="flex justify-between items-center py-3 px-4 bg-green-50 dark:bg-green-900/10 rounded-xl border border-green-100 dark:border-green-800">
-                        <span class="text-gray-600 dark:text-gray-300 text-sm font-bold" data-i18n="baseSalary">ប្រាក់ខែគោល</span>
-                        <span id="displayBaseSalary" class="font-bold text-gray-800 dark:text-white">$0.00</span>
-                    </div>
-                    <div class="flex justify-between items-center py-3 px-4 bg-blue-50 dark:bg-blue-900/10 rounded-xl border border-blue-100 dark:border-blue-800">
-                        <span class="text-khmerBlue dark:text-blue-300 text-sm font-bold" data-i18n="totalOtMoney">ប្រាក់ OT សរុប</span>
-                        <span id="displayTotalOT" class="font-bold text-khmerBlue dark:text-blue-300">$0.00</span>
-                    </div>
-                    <div class="space-y-3 pt-2">
-                        <div class="flex items-center justify-between">
-                            <label class="text-sm font-bold text-gray-500 dark:text-gray-400" data-i18n="foodAllowance">ថ្លៃបាយ</label>
-                            <input type="number" class="income-input w-32 p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-right focus:border-green-500 outline-none transition font-bold" placeholder="0" oninput="calculateAll(true)">
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <label class="text-sm font-bold text-gray-500 dark:text-gray-400" data-i18n="bonus">លើកទឹកចិត្ត (Bonus)</label>
-                            <input type="number" class="income-input w-32 p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-right focus:border-green-500 outline-none transition font-bold" placeholder="0" oninput="calculateAll(true)">
-                        </div>
-                    </div>
-                </div>
-                <div class="mt-8 pt-4 border-t border-slate-100 dark:border-slate-700 flex justify-between items-baseline font-sans">
-                    <span class="font-bold text-gray-400 uppercase text-xs tracking-wider" data-i18n="totalIncome">សរុបចំណូល</span>
-                    <span id="totalIncome" class="text-2xl font-bold text-green-600 dark:text-green-400 drop-shadow-sm">$0.00</span>
-                </div>
-            </section>
-
-            <!-- EXPENSE WITH EYE TOGGLE -->
-            <section class="khmer-card p-6 border-l-4 border-l-khmerRed flex flex-col">
-                <div class="flex justify-between items-center mb-4 border-b border-dashed border-slate-200 dark:border-slate-700 pb-4">
-                    <h2 class="text-xl font-bold text-khmerRed dark:text-red-400 flex items-center gap-3 font-header">
-                        <div class="bg-red-100 dark:bg-red-900 p-2 rounded-lg shadow-sm">
-                            <i data-lucide="receipt" class="w-5 h-5 text-khmerRed dark:text-red-300"></i>
-                        </div>
-                        <span data-i18n="expenseTitle">ចំណាយ (Expenses)</span>
-                    </h2>
-                    
-                    <!-- EYE TOGGLE BUTTON -->
-                    <button id="btn-expense-toggle" onclick="toggleExpensesList()" class="p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 text-khmerRed dark:text-red-400 transition-all active:scale-95 shadow-sm border border-red-100 dark:border-red-900/50">
-                        <i data-lucide="eye-off" class="w-5 h-5"></i>
-                    </button>
-                </div>
-                
-                <div id="expenses-content" class="hidden-content flex-1">
-                    <div id="expenses-container" class="space-y-3 font-sans pt-2">
-                        <!-- JS will insert rows here -->
-                    </div>
-                    <button onclick="addNewExpense()" class="mt-4 w-full py-2.5 rounded-xl border border-dashed border-red-300 dark:border-red-800 text-khmerRed dark:text-red-400 text-sm font-bold hover:bg-red-50 dark:hover:bg-red-900/20 transition flex items-center justify-center gap-2 bg-white dark:bg-transparent shadow-sm">
-                        <i data-lucide="plus" class="w-4 h-4"></i> <span data-i18n="addExpense">បន្ថែមចំណាយថ្មី</span>
-                    </button>
-                </div>
-                
-                <div class="mt-auto pt-4 border-t border-slate-100 dark:border-slate-700 flex justify-between items-baseline font-sans">
-                    <span class="font-bold text-gray-400 uppercase text-xs tracking-wider" data-i18n="totalExpense">សរុបចំណាយ</span>
-                    <span id="totalExpense" class="text-2xl font-bold text-khmerRed dark:text-red-400 drop-shadow-sm">$0.00</span>
-                </div>
-            </section>
-        </div>
-
-        <!-- FOOTER INFO -->
-        <footer class="text-center py-4 flex flex-col items-center gap-6 mb-20 relative z-20">
-             <!-- Created By -->
-             <div class="flex items-center gap-2 text-gray-400 text-xs font-sans bg-white/60 dark:bg-slate-800/60 px-4 py-1.5 rounded-full border border-gray-200 dark:border-slate-700 backdrop-blur-sm shadow-sm">
-                 <span data-i18n="createdBy">បង្កើតដោយ</span>
-                 <span id="creator-name" class="font-bold text-khmerBlue dark:text-khmerGold">ហ៊ុន សំណាង</span>
-             </div>
-             
-             <!-- Donate Button -->
-             <button onclick="toggleModal('donate-modal')" class="relative inline-flex items-center gap-3 px-8 py-3 rounded-xl bg-gradient-to-r from-khmerGold to-orange-500 shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 hover:-translate-y-1 transition-all duration-300 active:scale-95 group border border-white/20">
-                 <div class="bg-white/20 p-1.5 rounded-lg backdrop-blur-sm">
-                    <i data-lucide="coffee" class="w-5 h-5 text-white"></i>
-                 </div>
-                 <span class="text-white font-bold text-base font-sans tracking-wide" data-i18n="donateBtn">Donate Admin</span>
-             </button>
-
-             <!-- Social -->
-             <div class="flex gap-6 items-center justify-center">
-                 <a href="https://t.me/hunsamnang" target="_blank" class="text-gray-400 hover:text-[#24A1DE] transition-colors bg-white dark:bg-slate-800 p-2.5 rounded-full shadow-sm hover:shadow-md hover:-translate-y-1">
-                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
-                 </a>
-                 <a href="https://wa.me/qr/H35HQISESRRLB1" target="_blank" class="text-gray-400 hover:text-[#25D366] transition-colors bg-white dark:bg-slate-800 p-2.5 rounded-full shadow-sm hover:shadow-md hover:-translate-y-1">
-                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-phone-call"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/><path d="M14.05 2a9 9 0 0 1 8 7.94"/><path d="M14.05 6A5 5 0 0 1 18 10"/></svg>
-                 </a>
-                 <a href="https://www.facebook.com/share/1PWhx9BWRR/?mibextid=wwXIfr" target="_blank" class="text-gray-400 hover:text-[#1877F2] transition-colors bg-white dark:bg-slate-800 p-2.5 rounded-full shadow-sm hover:shadow-md hover:-translate-y-1">
-                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-facebook"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-                 </a>
-             </div>
-        </footer>
-
-        <!-- GRAND TOTAL FLOATING BAR -->
-        <div id="grandTotalBar" class="fixed bottom-4 left-0 right-0 z-40 px-4">
-            <section class="max-w-4xl mx-auto relative bg-khmerBlue dark:bg-slate-800 text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between overflow-hidden border border-white/20 backdrop-blur-xl group">
-                <!-- Decoration -->
-                <div class="absolute top-0 right-0 h-full w-24 bg-khmerGold/10 -skew-x-12 transform translate-x-8"></div>
-                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite]"></div>
-                
-                <div class="relative z-10 flex items-center gap-3">
-                    <div class="bg-white/10 p-2 rounded-lg hidden sm:block backdrop-blur-sm border border-white/10">
-                        <i data-lucide="wallet" class="w-6 h-6 text-khmerGold"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-gray-200 text-xs font-bold uppercase tracking-wider mb-0.5 font-sans" data-i18n="balanceTitle">ប្រាក់ខែនៅសល់ (Balance)</h3>
-                        <p class="text-[10px] text-white/60 font-sans" data-i18n="balanceSub">សរុបទុកក្នុងកូនជ្រូក 🐖</p>
-                    </div>
-                </div>
-                <h1 id="grandTotal" class="relative z-10 text-3xl font-bold tracking-tight text-white font-mono drop-shadow-md">$0.00</h1>
-            </section>
-        </div>
-    </main>
-
-    <!-- DOWNLOAD REPORT MODAL -->
-    <div id="download-modal" class="fixed inset-0 z-50 hidden modal-overlay" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="fixed inset-0 bg-darkNight/80 backdrop-blur-sm transition-opacity" onclick="toggleModal('download-modal')"></div>
-        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-2xl bg-white dark:bg-darkCard text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md modal-enter border-4 border-khmerBlue">
-                <!-- Krama Strip on Modal -->
-                <div class="krama-strip absolute top-0 left-0"></div>
-                
-                <!-- Report Preview -->
-                <div id="report-capture-area" class="bg-white p-8 font-sans relative text-stone-800">
-                    <div class="receipt-zigzag absolute top-0 left-0 w-full"></div>
-                    
-                    <div class="text-center mb-6 mt-4">
-                        <div class="mx-auto w-12 h-12 bg-khmerBlue rounded-full flex items-center justify-center mb-2 shadow-lg">
-                            <i data-lucide="calculator" class="w-6 h-6 text-white"></i>
-                        </div>
-                        <h3 class="text-xl font-header text-khmerBlue" data-i18n="appTitle">Salary Calculator</h3>
-                        <p class="text-xs text-gray-500" id="report-date">Date: --/--/----</p>
-                    </div>
-
-                    <div class="space-y-3 border-t border-dashed border-gray-300 pt-4">
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-600" data-i18n="incomeTitle">Income</span>
-                            <span class="font-bold text-green-600" id="report-income">$0.00</span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-600" data-i18n="expenseTitle">Expenses</span>
-                            <span class="font-bold text-red-500" id="report-expense">$0.00</span>
-                        </div>
-                    </div>
-
-                    <div class="my-4 border-t border-dashed border-gray-300"></div>
-
-                    <div id="report-expense-list" class="space-y-1 mb-4 text-xs text-gray-500">
-                    </div>
-
-                    <div class="bg-khmerBlue text-white p-4 rounded-xl flex justify-between items-center shadow-lg">
-                        <span class="font-bold text-sm" data-i18n="balanceTitle">NET BALANCE</span>
-                        <span class="font-bold text-2xl" id="report-balance">$0.00</span>
-                    </div>
-
-                    <div class="text-center mt-6 pt-4 border-t border-gray-100">
-                        <p class="text-[10px] text-gray-400">Created by <span class="text-khmerBlue font-bold">ហ៊ុន សំណាង</span></p>
-                    </div>
-                </div>
-
-                <!-- Actions -->
-                <div class="bg-gray-50 dark:bg-slate-700/50 px-4 py-3 sm:px-6 flex gap-3 justify-center">
-                    <button onclick="downloadImage()" class="flex-1 inline-flex justify-center items-center gap-2 rounded-xl bg-khmerBlue hover:bg-blue-800 text-white px-4 py-2 text-sm font-bold shadow-sm transition-all">
-                        <i data-lucide="download" class="w-4 h-4"></i> <span data-i18n="downloadBtn">Download Image</span>
-                    </button>
-                    <button onclick="toggleModal('download-modal')" class="flex-1 inline-flex justify-center items-center gap-2 rounded-xl bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 px-4 py-2 text-sm font-bold shadow-sm transition-all" data-i18n="btnClose">
-                        Close
-                    </button>
-                </div>
+            <div class="lantern-swing h-32 w-20 bg-gradient-to-b from-red-600 to-red-900 rounded-b-xl border-2 border-yellow-400 shadow-xl flex items-center justify-center text-yellow-400 font-header text-3xl" style="animation-delay: 1s;">
+                <span>春</span>
             </div>
         </div>
+
+        <div class="text-center relative z-10 px-4 animate-fade-in-up">
+            <div class="mb-4 inline-block animate-gallop">
+                <span class="text-6xl">🐎</span>
+            </div>
+            <h1 class="text-4xl md:text-6xl font-wishes text-richGold drop-shadow-md mb-2">សួស្ដីឆ្នាំថ្មី</h1>
+            <h2 class="text-2xl md:text-3xl font-header text-white mb-6">ឆ្នាំមមី ២០២៦</h2>
+            
+            <div class="bg-white/10 backdrop-blur-sm p-6 rounded-2xl border border-yellow-500/30 max-w-sm mx-auto mb-8">
+                <p class="text-yellow-100 font-sans text-lg leading-relaxed">
+                    សូមជូនពរឱ្យអ្នក និងក្រុមគ្រួសារ <br>
+                    ជួបតែសំណាងល្អ សុខភាពល្អ <br>
+                    និង ជោគជ័យគ្រប់ភារកិច្ច!
+                </p>
+            </div>
+
+            <button onclick="startApp()" class="group relative px-8 py-4 bg-gradient-to-r from-richGold to-yellow-600 rounded-full font-bold text-red-900 text-xl shadow-gold hover:scale-105 transition-transform">
+                <span class="relative z-10 flex items-center gap-2">
+                    ចាប់ផ្តើមគណនា <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                </span>
+                <div class="absolute inset-0 rounded-full bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
+            </button>
+        </div>
+        
+        <div class="absolute bottom-4 text-white/30 text-xs">Developed by ហ៊ុន សំណាង</div>
     </div>
 
-    <!-- DONATE MODAL -->
-    <div id="donate-modal" class="fixed inset-0 z-50 hidden modal-overlay" aria-labelledby="donate-modal-title" role="dialog" aria-modal="true">
-        <div class="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onclick="toggleModal('donate-modal')"></div>
-        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-xs modal-enter border-t-4 border-khmerGold">
-                <div class="bg-gradient-to-br from-khmerBlue to-blue-900 p-6 text-center text-white">
-                    <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-white/20 mb-3 backdrop-blur-sm">
-                        <i data-lucide="coffee" class="w-7 h-7 text-white"></i>
+
+    <!-- 2. MAIN APP CONTENT -->
+    <div id="main-app" class="min-h-screen flex flex-col relative bg-cloud-pattern transition-opacity duration-1000 opacity-0">
+
+        <header class="pt-6 pb-2 px-4 flex justify-between items-start max-w-lg mx-auto w-full relative z-10">
+            <div class="lantern-swing absolute top-0 left-4">
+                 <div class="w-1 h-8 bg-richGold mx-auto"></div>
+                 <div class="w-12 h-16 bg-luckyRed rounded-lg border-2 border-richGold shadow-lg shadow-red-500/30 flex items-center justify-center text-richGold font-header text-xl">2026</div>
+                 <div class="w-1 h-6 bg-richGold mx-auto"></div>
+                 <div class="w-2 h-2 bg-luckyRed rounded-full mx-auto"></div>
+            </div>
+            
+            <div class="w-full text-center mt-4">
+                <h1 class="text-3xl font-header text-luckyRed drop-shadow-sm tracking-wide">គណនាប្រាក់ខែ</h1>
+                <p class="text-xs text-gray-500 font-sans mt-1">Smart Salary Calculator</p>
+            </div>
+
+            <div class="lantern-swing absolute top-0 right-4" style="animation-delay: 1.5s;">
+                 <div class="w-1 h-12 bg-richGold mx-auto"></div>
+                 <div class="w-10 h-14 bg-luckyRed rounded-lg border-2 border-richGold shadow-lg shadow-red-500/30 flex items-center justify-center text-richGold font-header text-lg">មមី</div>
+                 <div class="w-1 h-6 bg-richGold mx-auto"></div>
+                 <div class="w-2 h-2 bg-luckyRed rounded-full mx-auto"></div>
+            </div>
+        </header>
+
+        <main class="flex-grow max-w-lg mx-auto w-full p-4 pb-32 relative z-10">
+            
+            <!-- SETUP SECTION -->
+            <section class="chinese-border p-5 mb-5 shadow-red hover:shadow-lg transition-shadow bg-white">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="bg-red-100 p-1.5 rounded-lg">
+                        <i data-lucide="settings-2" class="w-5 h-5 text-luckyRed"></i>
                     </div>
-                    <h3 class="text-xl font-bold font-sans mb-1" id="donate-modal-title" data-i18n="donateTitle">
-                        ឧបត្ថម្ភគាំទ្រ Admin ☕
-                    </h3>
-                    <p class="text-xs text-blue-200 font-sans" data-i18n="donateSub">
-                        Scan. Pay. Done.
-                    </p>
+                    <h2 class="text-lg font-bold text-gray-800">ការកំណត់ប្រាក់ខែ</h2>
                 </div>
-                <div class="p-6 text-center">
-                    <div class="bg-white p-2 rounded-xl border border-gray-200 shadow-sm inline-block">
-                        <div class="w-48 h-48 bg-gray-100 rounded-lg overflow-hidden relative">
-                            <!-- REPLACE WITH YOUR QR CODE URL HERE -->
-                            <img src="my_qr.jpg" alt="ABA QR Code" class="w-full h-full object-contain">
+
+                <div class="space-y-4">
+                    <div class="relative">
+                        <label class="absolute -top-2.5 left-3 bg-white px-2 text-xs font-bold text-luckyRed">ប្រាក់ខែគោល ($)</label>
+                        <input type="number" id="baseSalary" value="500" class="input-festive w-full p-4 text-center text-2xl" oninput="calculateAll()">
+                    </div>
+
+                    <div class="flex gap-4">
+                        <div class="relative w-1/2">
+                            <label class="absolute -top-2.5 left-3 bg-white px-2 text-[10px] font-bold text-gray-500">ថ្ងៃធ្វើការ</label>
+                            <input type="number" id="workDays" value="26" class="input-festive w-full p-3 text-center" oninput="calculateAll()">
+                        </div>
+                        <div class="relative w-1/2">
+                            <label class="absolute -top-2.5 left-3 bg-white px-2 text-[10px] font-bold text-gray-500">ម៉ោង/ថ្ងៃ</label>
+                            <input type="number" id="workHours" value="8" class="input-festive w-full p-3 text-center" oninput="calculateAll()">
                         </div>
                     </div>
-                    <div class="mt-4">
-                        <p class="text-xs text-gray-500 font-bold uppercase tracking-widest mb-1">ABA Bank</p>
-                        <p class="text-base font-bold text-khmerBlue">HUN SAMNANG</p>
+
+                    <div class="grid grid-cols-3 gap-2 text-center text-xs mt-2 bg-softCream rounded-lg p-2 border border-orange-100">
+                        <div>
+                            <span class="block text-gray-400 text-[10px]">1 ម៉ោង</span>
+                            <span id="rate100" class="font-bold text-gray-700">$0.00</span>
+                        </div>
+                        <div class="border-l border-orange-200">
+                            <span class="block text-blue-400 text-[10px]">1.5x</span>
+                            <span id="rate150" class="font-bold text-blue-600">$0.00</span>
+                        </div>
+                        <div class="border-l border-orange-200">
+                            <span class="block text-red-400 text-[10px]">2.0x</span>
+                            <span id="rate200" class="font-bold text-red-600">$0.00</span>
+                        </div>
                     </div>
                 </div>
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 flex justify-center">
-                    <button type="button" class="inline-flex w-full justify-center rounded-xl bg-gray-200 text-gray-700 hover:bg-gray-300 px-4 py-2 text-sm font-bold shadow-sm transition-all sm:w-auto font-sans" onclick="toggleModal('donate-modal')" data-i18n="btnClose">បិទ</button>
+            </section>
+
+            <!-- OT & INCOME -->
+            <div class="grid grid-cols-1 gap-5">
+                <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden">
+                    <h3 class="font-bold text-gray-700 mb-4 flex items-center gap-2">
+                        <i data-lucide="clock" class="w-4 h-4 text-orange-500"></i> កត់ម៉ោង OT
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs font-bold bg-blue-50 text-blue-600 px-2 py-1 rounded">1.5x</span>
+                            <input type="number" id="manualHours150" placeholder="0" class="input-festive flex-1 p-2 text-right" oninput="calculateAll()">
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs font-bold bg-red-50 text-red-600 px-2 py-1 rounded">2.0x</span>
+                            <input type="number" id="manualHours200" placeholder="0" class="input-festive flex-1 p-2 text-right" oninput="calculateAll()">
+                        </div>
+                    </div>
                 </div>
+
+                <div class="bg-gradient-to-br from-luckyRed to-deepRed rounded-2xl p-5 text-white shadow-red relative">
+                    <i data-lucide="coins" class="absolute -bottom-4 -right-4 w-24 h-24 text-white opacity-10 rotate-12"></i>
+                    <h3 class="font-bold mb-4 flex items-center gap-2">
+                        <i data-lucide="plus-circle" class="w-4 h-4 text-richGold"></i> ចំណូលបន្ថែម
+                    </h3>
+                    <div class="grid grid-cols-2 gap-4 relative z-10">
+                        <div>
+                            <label class="text-[10px] text-white/70 block mb-1">ថ្លៃបាយ</label>
+                            <input type="number" class="income-input bg-white/20 border border-white/30 text-white placeholder-white/50 w-full p-2 rounded-lg text-right font-bold focus:bg-white/30 outline-none" placeholder="0" oninput="calculateAll()">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-white/70 block mb-1">Bonus</label>
+                            <input type="number" class="income-input bg-white/20 border border-white/30 text-white placeholder-white/50 w-full p-2 rounded-lg text-right font-bold focus:bg-white/30 outline-none" placeholder="0" oninput="calculateAll()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTACT / SUPPORT SECTION -->
+            <div class="text-center mt-8 space-y-3">
+                 <p class="text-[10px] text-gray-400">
+                     Developed by <button onclick="openDonateModal()" class="font-bold text-luckyRed hover:underline">ហ៊ុន សំណាង</button>
+                 </p>
+                 <button onclick="openDonateModal()" class="bg-white border border-red-200 text-luckyRed px-4 py-2 rounded-full text-xs font-bold shadow-sm flex items-center gap-2 mx-auto hover:bg-red-50 transition">
+                    <i data-lucide="heart" class="w-3 h-3"></i> ឧបត្ថម្ភ & ទំនាក់ទំនង
+                 </button>
+            </div>
+
+            <!-- TOTAL BAR -->
+            <div class="fixed bottom-6 left-4 right-4 z-40 max-w-lg mx-auto">
+                <div class="bg-white rounded-2xl shadow-gold border-2 border-richGold p-1">
+                    <div class="bg-softCream rounded-xl px-5 py-3 flex justify-between items-center">
+                        <div>
+                            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Income</div>
+                            <div class="text-xs font-bold text-luckyRed">សរុបប្រាក់ខែ</div>
+                        </div>
+                        <div class="text-right">
+                            <span id="grandTotal" class="text-3xl font-header text-luckyRed">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- DONATE & CONTACT MODAL -->
+    <div id="donate-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeDonateModal()"></div>
+        
+        <div class="bg-white w-full max-w-sm mx-4 rounded-3xl overflow-hidden relative z-10 shadow-2xl transform scale-95 transition-transform duration-300" id="donate-content">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-luckyRed to-deepRed p-5 text-center text-white relative overflow-hidden">
+                <div class="absolute -top-4 -right-4 text-6xl opacity-20">🧧</div>
+                <h2 class="text-2xl font-wishes text-richGold">ឧបត្ថម្ភ Admin</h2>
+                <p class="text-xs text-white/80 mt-1">Scan. Pay. Done.</p>
+                <button onclick="closeDonateModal()" class="absolute top-4 right-4 text-white/70 hover:text-white">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+                
+                <!-- ABA -->
+                <a href="https://pay.ababank.com/oRF8/bjr6yndk" target="_blank" class="block group">
+                    <div class="bg-abaBlue/5 border border-abaBlue/20 rounded-xl p-3 flex items-center justify-between hover:bg-abaBlue/10 transition">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-abaBlue text-white p-2 rounded-lg font-bold text-xs">ABA</div>
+                            <div>
+                                <h3 class="font-bold text-gray-800 text-sm">ABA Bank</h3>
+                                <p class="text-[10px] text-gray-500">គណនី: $ និង ៛</p>
+                            </div>
+                        </div>
+                        <div class="text-abaBlue font-bold text-xs bg-white px-3 py-1.5 rounded-full shadow-sm group-hover:scale-105 transition">
+                            Pay Now
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Wing -->
+                <a href="https://wingmoney.app.link/FenLETPGC0b" target="_blank" class="block group">
+                    <div class="bg-wingGreen/10 border border-wingGreen/30 rounded-xl p-3 flex items-center justify-between hover:bg-wingGreen/20 transition">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-wingGreen text-white p-2 rounded-lg font-bold text-xs">Wing</div>
+                            <div>
+                                <h3 class="font-bold text-gray-800 text-sm">Wing Bank</h3>
+                                <p class="text-[10px] text-gray-500 font-mono select-all">103158094</p>
+                            </div>
+                        </div>
+                        <div class="text-green-700 font-bold text-xs bg-white px-3 py-1.5 rounded-full shadow-sm group-hover:scale-105 transition">
+                            Pay Now
+                        </div>
+                    </div>
+                </a>
+
+                <div class="border-t border-dashed border-gray-200 my-2"></div>
+
+                <!-- Socials -->
+                <div class="text-center">
+                    <p class="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wider">ទំនាក់ទំនង</p>
+                    <div class="flex justify-center gap-4">
+                        <a href="https://www.facebook.com/samnanghunreal/" target="_blank" class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-md hover:-translate-y-1 transition">
+                            <i data-lucide="facebook" class="w-5 h-5"></i>
+                        </a>
+                        <a href="https://t.me/hunsamnang" target="_blank" class="w-10 h-10 bg-sky-500 rounded-full flex items-center justify-center text-white shadow-md hover:-translate-y-1 transition">
+                            <i data-lucide="send" class="w-5 h-5"></i>
+                        </a>
+                        <a href="https://wa.me/qr/H35HQISESRRLB1" target="_blank" class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white shadow-md hover:-translate-y-1 transition">
+                            <i data-lucide="phone" class="w-5 h-5"></i>
+                        </a>
+                        <a href="https://u.wechat.com/kBVl6zaWxOSCqiHsDatJx7A?s=2" target="_blank" class="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center text-white shadow-md hover:-translate-y-1 transition">
+                            <i data-lucide="message-circle" class="w-5 h-5"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-gray-50 p-3 text-center text-[10px] text-gray-400">
+                HUN SAMNANG &copy; 2026
             </div>
         </div>
     </div>
 
     <script>
-        // Initialize Lucide immediately
         lucide.createIcons();
 
-        // --- TRANSLATIONS ---
-        const translations = {
-            km: {
-                appTitle: "គណនាប្រាក់ខែ",
-                otTableBtn: "តារាង OT",
-                settingsTitle: "ការកំណត់ប្រាក់ខែគោល",
-                baseSalary: "ប្រាក់ខែគោល ($)",
-                workDays: "ថ្ងៃធ្វើការ/ខែ",
-                workHours: "ម៉ោងធ្វើការ/ថ្ងៃ",
-                rate1h: "1 ម៉ោង",
-                totalOtTitle: "សរុបម៉ោង OT",
-                ot150: "OT 150% (ម៉ោង)",
-                ot200: "OT 200% (ម៉ោង)",
-                incomeTitle: "ចំណូល (Income)",
-                totalOtMoney: "ប្រាក់ OT សរុប",
-                foodAllowance: "ថ្លៃបាយ",
-                bonus: "លើកទឹកចិត្ត (Bonus)",
-                totalIncome: "សរុបចំណូល",
-                expenseTitle: "ចំណាយ (Expenses)",
-                addExpense: "បន្ថែមចំណាយថ្មី",
-                totalExpense: "សរុបចំណាយ",
-                createdBy: "បង្កើតដោយ",
-                donateBtn: "Donate Admin",
-                balanceTitle: "ប្រាក់ខែនៅសល់ (Balance)",
-                balanceSub: "សរុបទុកក្នុងកូនជ្រូក",
-                otModalTitle: "តារាងកត់ម៉ោង",
-                thDate: "កាលបរិច្ឆេទ",
-                thIn: "ចូល",
-                thOut: "ចេញ",
-                btnAddRow: "បន្ថែមជួរថ្មី",
-                btnClose: "បិទ",
-                donateTitle: "ឧបត្ថម្ភគាំទ្រ Admin ☕",
-                donateSub: "Scan. Pay. Done.",
-                expenseNamePlaceholder: "ឈ្មោះចំណាយ",
-                exportTitle: "របាយការណ៍សង្ខេប",
-                downloadBtn: "ទាញយក (រូបភាព)"
-            },
-            en: {
-                appTitle: "Salary Calculator",
-                otTableBtn: "OT Table",
-                settingsTitle: "Base Salary Settings",
-                baseSalary: "Base Salary ($)",
-                workDays: "Work Days/Month",
-                workHours: "Work Hours/Day",
-                rate1h: "1 Hour",
-                totalOtTitle: "Total OT Hours",
-                ot150: "OT 150% (Hours)",
-                ot200: "OT 200% (Hours)",
-                incomeTitle: "Income",
-                totalOtMoney: "Total OT Amount",
-                foodAllowance: "Food Allowance",
-                bonus: "Incentive (Bonus)",
-                totalIncome: "Total Income",
-                expenseTitle: "Expenses",
-                addExpense: "Add New Expense",
-                totalExpense: "Total Expense",
-                createdBy: "Created By",
-                donateBtn: "Donate Admin",
-                balanceTitle: "Net Balance",
-                balanceSub: "Savings for Piggy Bank",
-                otModalTitle: "Overtime Record",
-                thDate: "Date",
-                thIn: "In",
-                thOut: "Out",
-                btnAddRow: "Add New Row",
-                btnClose: "Close",
-                donateTitle: "Support Admin ☕",
-                donateSub: "Scan. Pay. Done.",
-                expenseNamePlaceholder: "Expense Name",
-                exportTitle: "Summary Report",
-                downloadBtn: "Download Image"
-            },
-            vi: {
-                appTitle: "Tính Lương",
-                otTableBtn: "Bảng OT",
-                settingsTitle: "Cài Đặt Lương Cơ Bản",
-                baseSalary: "Lương Cơ Bản ($)",
-                workDays: "Ngày Làm Việc/Tháng",
-                workHours: "Giờ Làm Việc/Ngày",
-                rate1h: "1 Giờ",
-                totalOtTitle: "Tổng Giờ OT",
-                ot150: "OT 150% (Giờ)",
-                ot200: "OT 200% (Giờ)",
-                incomeTitle: "Thu Nhập (Income)",
-                totalOtMoney: "Tổng Tiền OT",
-                foodAllowance: "Tiền Ăn",
-                bonus: "Thưởng (Bonus)",
-                totalIncome: "Tổng Thu Nhập",
-                expenseTitle: "Chi Phí (Expenses)",
-                addExpense: "Thêm Chi Phí Mới",
-                totalExpense: "Tổng Chi Phí",
-                createdBy: "Tạo bởi",
-                donateBtn: "Donate Admin",
-                balanceTitle: "Số Dư Thực Tế (Balance)",
-                balanceSub: "Tiết kiệm cho heo đất",
-                otModalTitle: "Ghi Chép OT",
-                thDate: "Ngày",
-                thIn: "Vào",
-                thOut: "Ra",
-                btnAddRow: "Thêm Dòng Mới",
-                btnClose: "Đóng",
-                donateTitle: "Ủng Hộ Admin ☕",
-                donateSub: "Quét. Trả. Xong.",
-                expenseNamePlaceholder: "Tên chi phí",
-                exportTitle: "Báo Cáo Tóm Tắt",
-                downloadBtn: "Tải Ảnh"
-            }
-        };
-
-        const expenseDictionary = {
-            fuel: { km: 'ថ្លៃសាំង', en: 'Gasoline', vi: 'Xăng xe' },
-            debt: { km: 'សងគេ', en: 'Debts', vi: 'Trả nợ' },
-            rent: { km: 'ផ្ទះជួល', en: 'Rent', vi: 'Tiền nhà' },
-            skincare: { km: 'Skin Care', en: 'Skin Care', vi: 'Mỹ phẩm' },
-            internet: { km: 'Internet', en: 'Internet', vi: 'Internet' },
-            clothes: { km: 'សម្លៀកបំពាក់', en: 'Clothes', vi: 'Quần áo' },
-            food: { km: 'ថ្លៃអាហារ', en: 'Food', vi: 'Ăn uống' },
-            coffee: { km: 'ថ្លៃកាហ្វេ', en: 'Coffee', vi: 'Cà phê' }
-        };
-
-        const expenseIcons = {
-            fuel: 'fuel',
-            debt: 'refresh-ccw',
-            rent: 'home',
-            skincare: 'sparkles',
-            internet: 'wifi',
-            clothes: 'shirt',
-            food: 'utensils',
-            coffee: 'coffee'
-        };
-
-        const defaultKeys = ['fuel', 'debt', 'rent', 'skincare', 'internet', 'clothes', 'food', 'coffee'];
-
-        let currentLang = localStorage.getItem('lang') || 'km';
-
-        function toggleLanguage() {
-            if (currentLang === 'km') {
-                currentLang = 'en';
-            } else if (currentLang === 'en') {
-                currentLang = 'vi';
-            } else {
-                currentLang = 'km';
-            }
-            localStorage.setItem('lang', currentLang);
-            updateLanguage();
+        // --- SPLASH SCREEN LOGIC ---
+        function startApp() {
+            const splash = document.getElementById('splash-screen');
+            const mainApp = document.getElementById('main-app');
+            
+            splash.classList.add('splash-hidden');
+            document.body.classList.add('scroll-enabled');
+            mainApp.classList.remove('opacity-0');
+            
+            fireConfettiBurst();
         }
 
-        function updateLanguage() {
-            const langLabel = document.getElementById('lang-label');
-            if (currentLang === 'km') {
-                langLabel.innerText = 'KH';
-            } else if (currentLang === 'en') {
-                langLabel.innerText = 'EN';
-            } else {
-                langLabel.innerText = 'VN';
-            }
-            
-            document.body.classList.remove('lang-en', 'lang-vi');
-            if(currentLang === 'en') {
-                document.body.classList.add('lang-en');
-            } else if(currentLang === 'vi') {
-                document.body.classList.add('lang-vi');
-            }
-
-            const creatorNameEl = document.getElementById('creator-name');
-            if (creatorNameEl) {
-                creatorNameEl.innerText = currentLang === 'km' ? 'ហ៊ុន សំណាង' : 'HUN SAMNANG';
-            }
-
-            const elements = document.querySelectorAll('[data-i18n]');
-            elements.forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (translations[currentLang][key]) {
-                    el.innerText = translations[currentLang][key];
-                }
-            });
-
-            const expInputs = document.querySelectorAll('.expense-name-input');
-            expInputs.forEach(input => {
-                input.placeholder = translations[currentLang].expenseNamePlaceholder;
-            });
-
-            const expenseRows = document.querySelectorAll('.expense-name-input[data-key]');
-            expenseRows.forEach(input => {
-                const key = input.getAttribute('data-key');
-                if (expenseDictionary[key]) {
-                    input.value = expenseDictionary[key][currentLang];
-                }
+        function fireConfettiBurst() {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#D90429', '#FFD700', '#FFF']
             });
         }
 
-        function initExpenses() {
-            const container = document.getElementById('expenses-container');
-            container.innerHTML = '';
-            defaultKeys.forEach(key => {
-                createExpenseRow(expenseDictionary[key][currentLang], expenseIcons[key], key);
-            });
+        // --- DONATE MODAL ---
+        function openDonateModal() {
+            const modal = document.getElementById('donate-modal');
+            const content = document.getElementById('donate-content');
+            modal.classList.remove('hidden');
+            // Allow display:flex to apply first, then opacity
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            }, 10);
         }
 
-        function createExpenseRow(nameVal = '', iconName = 'receipt', key = null) {
-            const container = document.getElementById('expenses-container');
-            const div = document.createElement('div');
-            div.className = "flex items-center justify-between gap-2 group";
+        function closeDonateModal() {
+            const modal = document.getElementById('donate-modal');
+            const content = document.getElementById('donate-content');
             
-            const dataKeyAttr = key ? `data-key="${key}"` : '';
-
-            div.innerHTML = `
-                <div class="flex items-center gap-2 flex-1 overflow-hidden">
-                    <i data-lucide="${iconName}" class="w-4 h-4 text-red-300 shrink-0"></i>
-                    <input type="text" value="${nameVal}" ${dataKeyAttr} class="expense-name-input bg-transparent border-b border-transparent focus:border-red-300 outline-none w-full text-sm text-gray-600 dark:text-gray-400 placeholder-gray-400 font-sans" placeholder="${translations[currentLang].expenseNamePlaceholder}">
-                </div>
-                <div class="flex items-center gap-2">
-                    <input type="number" class="expense-input w-24 p-2 bg-white dark:bg-slate-900 border border-red-100 dark:border-gray-700 rounded-lg text-right focus:border-santaRed outline-none transition text-sm" placeholder="0" oninput="calculateAll(true)">
-                    <button onclick="this.closest('.group').remove(); calculateAll(true)" class="text-gray-300 hover:text-red-500 p-1 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition shrink-0">
-                        <i data-lucide="x" class="w-4 h-4"></i>
-                    </button>
-                </div>
-            `;
-            container.appendChild(div);
-            lucide.createIcons();
-        }
-
-        function addNewExpense() {
-            createExpenseRow('', 'receipt');
-        }
-
-        // --- PARTICLE EFFECT ---
-        function createGoldParticle() {
-            const particle = document.createElement('div');
-            particle.className = 'gold-particle';
-            particle.style.left = Math.random() * 100 + 'vw';
-            const size = Math.random() * 3 + 3 + 'px';
-            particle.style.width = size;
-            particle.style.height = size;
-            particle.style.opacity = Math.random() * 0.5 + 0.3;
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
             
-            const duration = Math.random() * 5 + 5;
-            particle.style.animationDuration = duration + 's';
-            
-            document.getElementById('particles-container').appendChild(particle);
-            setTimeout(() => { particle.remove(); }, duration * 1000);
-        }
-        setInterval(createGoldParticle, 400);
-
-
-        // --- REPORT & DOWNLOAD ---
-        function openDownloadModal() {
-            calculateAll(true); 
-            
-            const date = new Date().toLocaleDateString(currentLang === 'km' ? 'km-KH' : 'en-US');
-            document.getElementById('report-date').innerText = `Date: ${date}`;
-            
-            document.getElementById('report-income').innerText = document.getElementById('totalIncome').innerText;
-            document.getElementById('report-expense').innerText = document.getElementById('totalExpense').innerText;
-            document.getElementById('report-balance').innerText = document.getElementById('grandTotal').innerText;
-
-            const listContainer = document.getElementById('report-expense-list');
-            listContainer.innerHTML = '';
-            
-            const rows = document.querySelectorAll('#expenses-container .group');
-            let hasItems = false;
-            rows.forEach(row => {
-                const name = row.querySelector('.expense-name-input').value || "Expense";
-                const val = row.querySelector('.expense-input').value;
-                if (val && parseFloat(val) > 0) {
-                    hasItems = true;
-                    const item = document.createElement('div');
-                    item.className = "flex justify-between border-b border-dashed border-gray-200 pb-1 last:border-0";
-                    item.innerHTML = `<span class="font-medium text-gray-600">${name}</span><span class="font-bold text-gray-800">$${parseFloat(val).toFixed(2)}</span>`;
-                    listContainer.appendChild(item);
-                }
-            });
-
-            if (!hasItems) {
-                listContainer.innerHTML = '<div class="text-center italic text-xs opacity-50 py-2">- No Expenses -</div>';
-            }
-
-            toggleModal('download-modal');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
         }
 
-        function downloadImage() {
-            const captureArea = document.getElementById('report-capture-area');
-            html2canvas(captureArea, { scale: 2 }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = 'salary_receipt.png';
-                link.href = canvas.toDataURL();
-                link.click();
-            });
-        }
-
-        const themeToggleBtn = document.getElementById('theme-toggle');
-        const htmlElement = document.documentElement;
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            htmlElement.classList.add('dark');
-        } else {
-            htmlElement.classList.remove('dark');
-        }
-        themeToggleBtn.addEventListener('click', () => {
-            htmlElement.classList.toggle('dark');
-            localStorage.theme = htmlElement.classList.contains('dark') ? 'dark' : 'light';
-        });
-
-        // --- EXPENSE TOGGLE FUNCTION ---
-        function toggleExpensesList() {
-            const content = document.getElementById('expenses-content');
-            const btn = document.getElementById('btn-expense-toggle');
-            const isHidden = content.classList.contains('hidden-content');
-            
-            if (isHidden) {
-                content.classList.remove('hidden-content');
-                content.classList.add('visible-content');
-                btn.innerHTML = '<i data-lucide="eye-off" class="w-5 h-5"></i>'; // Eye Off = "Click to hide"
-            } else {
-                content.classList.remove('visible-content');
-                content.classList.add('hidden-content');
-                btn.innerHTML = '<i data-lucide="eye" class="w-5 h-5"></i>'; // Eye = "Click to show"
-            }
-            lucide.createIcons();
-        }
-
-        function toggleModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) modal.classList.toggle('hidden');
-        }
-
-        function setInitialState() {
-            // Expenses: Collapsed by default (Eye Off)
-            const expContent = document.getElementById('expenses-content');
-            const expBtn = document.getElementById('btn-expense-toggle');
-            expContent.classList.add('hidden-content'); 
-            expBtn.innerHTML = '<i data-lucide="eye" class="w-5 h-5"></i>'; // Initial: Eye = "Click to show"
-            lucide.createIcons();
-        }
-
-        function calculateAll(isManualInput = false) {
+        // --- CALCULATION ---
+        function calculateAll() {
             const baseSalary = parseFloat(document.getElementById('baseSalary').value) || 0;
             const workDays = parseFloat(document.getElementById('workDays').value) || 26;
             const workHours = parseFloat(document.getElementById('workHours').value) || 8;
+            
             const hourlyRate = (baseSalary / workDays) / workHours;
             const rate150 = hourlyRate * 1.5;
             const rate200 = hourlyRate * 2.0;
@@ -813,40 +452,24 @@
             document.getElementById('rate100').innerText = '$' + hourlyRate.toFixed(2);
             document.getElementById('rate150').innerText = '$' + rate150.toFixed(2);
             document.getElementById('rate200').innerText = '$' + rate200.toFixed(2);
-            document.getElementById('displayBaseSalary').innerText = '$' + baseSalary.toFixed(2);
 
-            const input150 = document.getElementById('manualHours150');
-            const input200 = document.getElementById('manualHours200');
+            const hours150 = parseFloat(document.getElementById('manualHours150').value) || 0;
+            const hours200 = parseFloat(document.getElementById('manualHours200').value) || 0;
             
-            const finalHours150 = parseFloat(input150.value) || 0;
-            const finalHours200 = parseFloat(input200.value) || 0;
-            const money150 = finalHours150 * rate150;
-            const money200 = finalHours200 * rate200;
-            const totalOtMoney = money150 + money200;
-            document.getElementById('displayTotalOT').innerText = '$' + totalOtMoney.toFixed(2);
-
+            const totalOtMoney = (hours150 * rate150) + (hours200 * rate200);
+            
             let otherIncome = 0;
             document.querySelectorAll('.income-input').forEach(input => {
                 otherIncome += parseFloat(input.value) || 0;
             });
-            const totalIncome = baseSalary + totalOtMoney + otherIncome;
-            document.getElementById('totalIncome').innerText = '$' + totalIncome.toFixed(2);
 
-            let totalExpense = 0;
-            document.querySelectorAll('.expense-input').forEach(input => {
-                totalExpense += parseFloat(input.value) || 0;
-            });
-            document.getElementById('totalExpense').innerText = '$' + totalExpense.toFixed(2);
-            document.getElementById('grandTotal').innerText = '$' + (totalIncome - totalExpense).toFixed(2);
+            const grandTotal = baseSalary + totalOtMoney + otherIncome;
+            document.getElementById('grandTotal').innerText = '$' + grandTotal.toFixed(2);
         }
 
-        // Initialize
-        updateLanguage();
-        initExpenses();
-        setInitialState();
+        // Init Calc
         calculateAll();
     </script>
 </body>
 </html>
-
 
